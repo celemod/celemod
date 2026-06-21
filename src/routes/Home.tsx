@@ -182,7 +182,7 @@ export const Home = () => {
               lastUseMap[currentProfileName] = Date.now()
               setLastUseMap(lastUseMap)
               st.save()
-              toast.info(i18n.t('正在启动'))
+              toast(i18n.t('正在启动'))
               callRemote('start_game_directly', gamePath || gamePaths[0], v === 'origin')
             }}
           />
@@ -277,7 +277,7 @@ export const Home = () => {
                   globalCtx.blacklist.switchProfile(v.name)
                   lastUseMap[v.name] = Date.now()
                   setLastUseMap(lastUseMap)
-                  toast.info(i18n.t('正在启动'))
+                  toast(i18n.t('正在启动'))
                   setTimeout(
                     () => callRemote('start_game_directly', gamePath || gamePaths[0], false),
                     300,
