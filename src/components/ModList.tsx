@@ -123,7 +123,7 @@ export const Mod = (props: {
 
                 return (
                   <div
-                    className="download-file-popup"
+                    className="download-file-popup space-y-8"
                     onClick={(e) => {
                       if (e.target === e.currentTarget) ctx.hide()
                     }}
@@ -133,22 +133,19 @@ export const Mod = (props: {
                         .map((v) => {
                           console.log(downloads)
                           return (
-                            <div
-                              className="file"
-                              onClick={() => {
-                                down(v.name, parseInt(v.id) === -1 ? v.url : v.id)
-                                popupCtx.hide()
-                              }}
-                            >
-                              <div className="name">
-                                <Icon name="save" />
-                                {v.name}
-                              </div>
-                              <div className="info">
-                                <span className="size">{v.size}</span>
-                                <span className="id">{v.id}</span>
-                              </div>
-                              <div className="url">{v.url}</div>
+                            <div className="file">
+                              <div>ID: {v.id}</div>
+                              <div>Name: {v.name}</div>
+                              <div>Size: {v.size}</div>
+
+                              <Button
+                                onClick={() => {
+                                  down(v.name, parseInt(v.id) === -1 ? v.url : v.id)
+                                  popupCtx.hide()
+                                }}
+                              >
+                                <Icon name="download" />
+                              </Button>
                             </div>
                           )
                         })
@@ -159,7 +156,7 @@ export const Mod = (props: {
                           pre[pre.length - 1].push(cur)
                           return pre
                         }, [])
-                        .map((v) => <div className="group">{v}</div>)}
+                        .map((v) => <div className="group space-y-1">{v}</div>)}
 
                     <span>{error}</span>
                   </div>
