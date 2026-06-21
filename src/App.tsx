@@ -18,6 +18,8 @@ import { Everest } from './routes/Everest'
 import { checkUpdate } from './components/SelfUpdate'
 import { createBlacklistContext } from './context/blacklist'
 import { RecommendMaps } from './routes/RecommendMaps'
+import { Modal } from '@heroui/react'
+import { Button } from './components/Button'
 
 // Map page names to route paths
 const PAGE_PATHS: Record<string, string> = {
@@ -100,7 +102,6 @@ const AppLayout = () => {
           blacklist,
         }}
       >
-        <DownloadListMenu />
         <div className="flex h-screen">
           <nav className="flex flex-col gap-1 p-3 w-40 min-w-40 bg-surface overflow-y-auto">
             <SidebarButton
@@ -159,20 +160,24 @@ const AppLayout = () => {
               </Fragment>
             )}
 
-            <div className="mt-auto flex justify-center py-2">
-              <button
-                className="p-2 rounded-full hover:bg-default/40 text-foreground/60"
-                onClick={() => {
-                  const btn = document.querySelector('.downloadListBtn')
-                  const list = document.querySelector('.downloadList')
-                  // @ts-ignore
-                  btn.popup(list)
-                }}
-              >
+            <div className="mt-auto flex justify-center py-2"></div>
+            <Modal>
+              <Button type="default">
                 <Icon name="download" />
-              </button>
-            </div>
+              </Button>
+
+              <Modal.Backdrop>
+                <Modal.Container placement="top">
+                  <Modal.Dialog>
+                    <Modal.Body>
+                      <DownloadListMenu />
+                    </Modal.Body>
+                  </Modal.Dialog>
+                </Modal.Container>
+              </Modal.Backdrop>
+            </Modal>
           </nav>
+
           <div className="flex-1 overflow-y-auto p-3">
             <Routes>
               <Route path="/" element={<Home />} />

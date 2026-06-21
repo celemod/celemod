@@ -1,18 +1,18 @@
 import i18n from 'src/i18n'
-import { Fragment } from 'react'
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Button } from './Button'
 import { Icon } from './Icon'
-import { Awaitable, callRemote, displayDate, horizontalScrollMouseWheelHandler } from '../utils'
+import { callRemote } from '../utils'
 
-import { memo } from 'react'
 import { Content } from '../api/wegfan'
 import { Download } from '../context/download'
 import { useAutoDisableNewMods } from '../states'
 import { useGlobalContext } from '../App'
 import { PopupContext, createPopup } from './Popup'
 import { ProgressIndicator } from './Progress'
-import { sanitizeDescriptionHtml } from '../sanitizeDescriptionHtml'
+import { Card, Button as HeroButton, Modal, Heading, Description } from '@heroui/react'
+import sanitizeHtml from 'sanitize-html'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const processLargeNum = (num: number) => {
   if (num < 1000) return num.toString()
@@ -21,16 +21,7 @@ const processLargeNum = (num: number) => {
   return (num / 1000000000).toFixed(1) + 'b'
 }
 
-const BackgroundEle = memo(({ preview }: { preview: string }) => (
-  <div className="bg">
-    <img src={preview + '?w=340'} alt="" srcSet="" />
-  </div>
-))
-
-const GUTTER_SIZE = 10
-
 export interface ModDetailInfo {
-  // HTML compatible
   description: string
   authors?: string[]
   images?: string[]
@@ -51,30 +42,39 @@ export interface FileToDownload {
 
 export interface ModInfo {
   name: string
-  downloadUrl: () => Awaitable<string | FileToDownload[]>
+  downloadUrl: () => Promise<string | FileToDownload[]>
   previewUrl: string
   author: string
+  isInstalled: boolean
   other: string
   detail?: () => Promise<ModDetailInfo>
 }
-export const Mod = memo(
-  (props: {
-    mod: ModInfo
-    onClick?: any
-    expanded?: boolean
-    modFolder: string
-    isInstalled: boolean
-  }) => {
-    const { download, modManage } = useGlobalContext()
-    const [autoDisableNewMods] = useAutoDisableNewMods()
-    const { mod } = props
-    const preview = mod.previewUrl
 
-    const [downloadTask, setDownloadTask] = useState<Download.TaskInfo | null>(null)
+export const Mod = (props: {
+  mod: ModInfo
+  onClick?: any
+  expanded?: boolean
+  modFolder: string
+  isInstalled: boolean
+}) => {
+  const { download, modManage } = useGlobalContext()
+  const [autoDisableNewMods] = useAutoDisableNewMods()
+  const { mod } = props
 
-    return (
-      <div onClick={props.onClick} className={`mod ${props.expanded && 'expanded'}`} key={mod.name}>
-        <div className="operations">
+  const [downloadTask, setDownloadTask] = useState<Download.TaskInfo | null>(null)
+
+  return (
+    <Card>
+      <img src={mod.previewUrl + '?w=340'} alt="" className="rounded-xl" />
+
+      <div>
+        <Heading level={6}>{mod.name}</Heading>
+        <Description>{mod.author}</Description>
+        <Card.Description>{mod.other}</Card.Description>
+      </div>
+
+      <div>
+        <div className="inline-flex items-center gap-x-1">
           <Button
             onClick={async () => {
               if (downloadTask) return
@@ -184,299 +184,95 @@ export const Mod = memo(
             }}
           >
             {props.isInstalled ? (
-              <Icon name="i-tick" />
+              <Icon name="checkmark" />
             ) : downloadTask ? (
               downloadTask.state === 'pending' ? (
-                `${downloadTask.progress}% (${
-                  downloadTask.subtasks.filter((v) => v.state !== 'Finished').length
-                })`
+                `${downloadTask.progress}% (${downloadTask.subtasks.filter((v) => v.state !== 'Finished').length})`
               ) : downloadTask.state === 'failed' ? (
-                <Icon name="i-cross" />
+                <Icon name="cancel" />
               ) : (
-                <Icon name="i-tick" />
+                <Icon name="checkmark" />
               )
             ) : (
               <Icon name="download" />
             )}
           </Button>
 
-          {props.mod.detail && (
-            <Button
-              onClick={async () => {
-                createPopup(
-                  () => {
-                    const [data, setData] = useState<ModDetailInfo | null>(null)
-                    const ctx = useContext(PopupContext)
-                    useEffect(() => {
-                      mod.detail?.().then(setData)
-                    }, [])
-
-                    const refContent = useRef<HTMLDivElement>(null)
-                    const refImages = useRef<HTMLDivElement>(null)
-                    useEffect(() => {
-                      if (!refImages.current) return
-                      // horizontal scroll
-                      refImages.current.addEventListener(
-                        'mousewheel',
-                        horizontalScrollMouseWheelHandler(),
-                      )
-                    }, [data])
-
-                    useEffect(() => {
-                      if (!refContent.current) return
-                      refContent.current.innerHTML = ''
-                      refContent.current.appendChild(
-                        sanitizeDescriptionHtml(data?.description ?? ''),
-                      )
-
-                      // Keep external links going through the native opener.
-                      // @ts-ignore
-                      for (const a of refContent.current.querySelectorAll('a')) {
-                        const url = a.getAttribute('href')
-                        if (!url) continue
-                        a.href = '#'
-                        a.onclick = (e: any) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          callRemote('open_url', url)
-                        }
-                      }
-
-                      // @ts-ignore
-                      for (const img of refContent.current.querySelectorAll('img'))
-                        img.style.maxWidth = '300px'
-                    }, [data])
-
-                    if (!data)
-                      return (
-                        <div
-                          style={{
-                            width: 'min-content',
-                          }}
-                        >
-                          <ProgressIndicator infinite />
-                        </div>
-                      )
-                    return (
-                      <div className="mod-detail-popup">
-                        <div className="closeBtn" onClick={() => ctx.hide()}>
-                          <Icon name="i-cross" />
-                        </div>
-                        {data.externalUrl && (
-                          <div
-                            className="openExternal"
-                            onClick={() => {
-                              callRemote('open_url', data.externalUrl)
-                            }}
-                          >
-                            <Icon name="external" />
-                          </div>
-                        )}
-
-                        <h2>{mod.name}</h2>
-                        <div className="info">
-                          Mod · {data.lastUpdate ? displayDate(data.lastUpdate) + ' ·' : ''}
-                          {mod.author}
-                        </div>
-                        {data.authors && data.authors.join(' ') !== mod.author && (
-                          <Fragment>
-                            <div className="credits-title">Credits</div>
-                            <div className="info credits">{data.authors.join(' / ')}</div>
-                          </Fragment>
-                        )}
-                        {data.images && (
-                          <div className="images" ref={refImages}>
-                            {data.images.map((v) => (
-                              <img
-                                src={v + '?h=160'}
-                                alt=""
-                                srcSet=""
-                                onClick={() =>
-                                  createPopup(() => (
-                                    <div className="image-view">
-                                      <img src={v} alt="" srcSet="" />
-                                    </div>
-                                  ))
-                                }
-                              />
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="content" ref={refContent}></div>
-                      </div>
-                    )
-                  },
-                  {
-                    backgroundMask: '#131313',
-                  },
-                )
-              }}
-            >
-              <Icon name="opts-h" />
-            </Button>
-          )}
+          {props.mod.detail && <DetailButton mod={props.mod} />}
         </div>
-
-        <div className="info">
-          <div className="name">{mod.name}</div>
-          <div className="author">{mod.author}</div>
-          <div className="other">{mod.other}</div>
-        </div>
-
-        <BackgroundEle preview={preview} />
       </div>
-    )
-  },
-)
-export const ModList = (props: {
-  mods: Content[]
-  onLoadMore?: any
-  haveMore?: boolean
-  modFolder: string
-  loading?: boolean
-  allowUpScroll: boolean
-}) => {
-  const [loading, setLoading] = useState(true)
+    </Card>
+  )
+}
 
-  const [installedModIDs, setInstalledModIDs] = useState<string[] | null>(null)
+function DetailButton({ mod }) {
+  const [data, setData] = useState<ModDetailInfo | null>(null)
 
   useEffect(() => {
-    callRemote('get_installed_mod_ids', props.modFolder, (ids: string) => {
-      setInstalledModIDs(ids.split('\n'))
+    mod?.detail?.()?.then((value) => {
+      setData(value)
     })
-  }, [props.modFolder])
+  }, [])
 
-  useEffect(() => {
-    setLoading(props.loading ?? false)
-  }, [props.loading])
-
-  if (installedModIDs === null)
-    return (
-      <div
-        className="loader"
-        style={{
-          position: 'fixed',
-          bottom: 200,
-          height: 24,
-          left: 200,
-          right: 200,
-        }}
-      >
-        <div className="bar"></div>
-      </div>
-    )
-
-  const refList: any = useRef(null)
-
-  const getVisibleRange = () => {
-    if (!refList.current) return { start: 0, end: 0, colWidth: 1 }
-    const padding = 40
-    const childHeight = refList.current.children[1].getBoundingClientRect().height + GUTTER_SIZE * 2
-    const start = Math.floor((refList.current.scrollTop - padding) / childHeight)
-    const end = Math.ceil(
-      (refList.current.scrollTop + refList.current.offsetHeight - padding * 2) / childHeight,
-    )
-    const colWidth = Math.floor((refList.current?.offsetWidth || 0) / 340)
-    return { start, end, colWidth }
+  if (!data) {
+    return 'no content'
   }
 
+  return (
+    <Modal>
+      <Button>Details</Button>
+
+      <Modal.Backdrop>
+        <Modal.Container size="cover">
+          <Modal.Dialog>
+            <Modal.Body className="space-y-4">
+              <div className="space-y-2">
+                {data.images?.map?.((src) => (
+                  <img key={src} src={src} alt="" className="rounded-xl" />
+                ))}
+              </div>
+              <div>
+                {data.files?.map((file) => (
+                  <div key={file.name}>
+                    {file.name}: {file.downloadUrl}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(data.description) }}></p>
+              </div>
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
+  )
+}
+
+function NoInstalledMods() {
+  return (
+    <div
+      className="loader"
+      style={{ position: 'fixed', bottom: 200, height: 24, left: 200, right: 200 }}
+    >
+      <div className="bar"></div>
+    </div>
+  )
+}
+
+function HasInstalledMods({ installedModIDs, loading, props }) {
+  const ITEMS_PER_PAGE = 24
+  const totalPages = Math.max(1, Math.ceil(props.mods.length / ITEMS_PER_PAGE))
+  const [page, setPage] = useState(1)
+  const startIdx = (page - 1) * ITEMS_PER_PAGE
+  const endIdx = startIdx + ITEMS_PER_PAGE
+  const pageMods = props.mods.slice(startIdx, endIdx)
+
   useEffect(() => {
-    if (refList.current) {
-      refList.current.vlist.slidingWindowSize = 10
-      let reachedOnce = false
-      let scrollLocked = false
-      refList.current.scrollTop = 40
-      refList.current.addEventListener('mousewheel', (e: any) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        const scrollTo = (v: any) => {
-          refList.current.scrollTo(v)
-        }
-
-        const target = refList.current.scrollTop + e.deltaY * 1.6
-        // console.log(target)
-        const topPaddingDownTop = 40
-        const list = document.querySelector('.mod-list') as any
-        const bottomPaddingUpTop =
-          list.scrollTop + list.lastElementChild.offsetTop - list.offsetHeight - 80
-        if (scrollLocked) return
-        if (target < 40) {
-          if (!props.allowUpScroll) {
-            scrollTo({
-              top: 40,
-              behavior: 'smooth',
-            })
-            return
-          }
-          // reach top padding
-          if (reachedOnce) {
-            scrollTo({
-              top: target,
-              behavior: 'smooth',
-            })
-
-            if (target < 0) {
-              scrollLocked = true
-              setTimeout(() => {
-                props.onLoadMore?.('up').then(() => {
-                  scrollLocked = false
-                })
-              }, 300)
-              scrollTo({
-                top: target,
-                behavior: 'smooth',
-              })
-            }
-          } else {
-            scrollTo({
-              top: topPaddingDownTop,
-              behavior: 'smooth',
-            })
-
-            if (props.haveMore) reachedOnce = true
-          }
-        } else if (target > refList.current.scrollHeight - refList.current.offsetHeight - 40) {
-          // reach bottom padding
-          if (reachedOnce) {
-            if (target > refList.current.offsetHeight) {
-              if (!scrollLocked) {
-                scrollLocked = true
-                setTimeout(() => {
-                  props.onLoadMore?.('down').then(() => {
-                    scrollLocked = false
-                  })
-                }, 300)
-                scrollTo({
-                  top: target,
-                  behavior: 'smooth',
-                })
-              }
-            } else {
-              scrollTo({
-                top: target,
-                behavior: 'smooth',
-              })
-            }
-          } else {
-            console.log('To', bottomPaddingUpTop)
-            scrollTo({
-              top: bottomPaddingUpTop,
-              behavior: 'smooth',
-            })
-            if (props.haveMore) reachedOnce = true
-          }
-        } else {
-          scrollTo({
-            top: target,
-            behavior: 'smooth',
-          })
-          reachedOnce = false
-        }
-      })
+    if (props.onPageChange) {
+      props.onPageChange(page)
     }
-  }, [props.onLoadMore, props.haveMore])
+  }, [page])
 
   const formatSize = (size: number) => {
     const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
@@ -484,126 +280,118 @@ export const ModList = (props: {
     return `${(size / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
   }
 
-  const [, setVisible] = useState(getVisibleRange())
-
-  useEffect(() => {
-    const onScroll = () => {
-      const range = getVisibleRange()
-      const c = refList.current.children
-      for (let i = 0; i < c.length; i++) {
-        const line = Math.floor(i / range.colWidth)
-        if (line < range.start || line > range.end) {
-          // const v = c[i]
-          // v.querySelector('img') && (im.src = "")
-        }
-      }
-      setVisible(range)
-    }
-    refList.current.addEventListener('scroll', onScroll)
-
-    setTimeout(onScroll, 10)
-
-    return () => {
-      refList.current.removeEventListener('scroll', onScroll)
-    }
-  }, [])
-
   return (
     <div>
-      <div className="mod-list" ref={refList}>
-        {<div className="padding"></div>}
-        {props.mods.map((mod2) => {
-          const mod = useMemo(() => {
-            const res = {
-              name: mod2.name,
-              downloadUrl: () => {
-                const dedup = new Set()
-                if (!mod2.gameBananaId) return mod2.files[0].url
-                return Promise.resolve(
-                  mod2.files
-                    .filter((v) => {
-                      if (v.mods.length === 0) return false
-                      if (dedup.has(v.mods[0].id)) return false
-                      dedup.add(v.mods[0].id)
-                      return true
-                    })
-                    .map(
-                      (v) =>
-                        ({
-                          id: v.gameBananaId.toString(),
-                          name: `${
-                            v.description.includes(v.mods[0].version) ? '' : v.mods[0].version + '-'
-                          }${v.description}-${v.mods[0].name}`,
-                          size: formatSize(v.size),
-                          url: v.url,
-                        }) as FileToDownload,
-                    ),
-                )
-              },
-              previewUrl: mod2?.screenshots?.[0]?.url ?? '/Celemod.png',
-              author: mod2.submitter,
-              isInstalled: installedModIDs.includes(mod2.gameBananaId?.toString()),
-              other: `${mod2.likes} 🥰 · ${processLargeNum(
-                mod2.views,
-              )} 👀 · ${processLargeNum(mod2.downloads)} 💾`,
-              detail: () =>
-                Promise.resolve({
-                  description: mod2.description,
-                  authors: mod2.credits.map((v) => v.authors.map((v) => v.name)).flat(),
-                  images: mod2.screenshots.map((v) => v.url),
-                  files: mod2.files.map((v) => ({
-                    name: v.description,
-                    downloadUrl: v.url,
-                  })),
-                  lastUpdate: mod2.latestUpdateAddedTime,
-                  externalUrl: mod2.pageUrl,
-                }),
-            }
-
-            return res
-          }, [mod2])
-          if (!mod) return (<div></div>) as any
-
-          const isVisible = true
+      <div className="space-y-2">
+        {pageMods.map((mod2: Content) => {
+          const mod = {
+            name: mod2.name,
+            downloadUrl: () => {
+              const dedup = new Set()
+              if (!mod2.gameBananaId) return mod2.files[0].url
+              return Promise.resolve(
+                mod2.files
+                  .filter((v) => {
+                    if (v.mods.length === 0) return false
+                    if (dedup.has(v.mods[0].id)) return false
+                    dedup.add(v.mods[0].id)
+                    return true
+                  })
+                  .map(
+                    (v) =>
+                      ({
+                        id: v.gameBananaId.toString(),
+                        name: `${v.description.includes(v.mods[0].version) ? '' : v.mods[0].version + '-'}${v.description}-${v.mods[0].name}`,
+                        size: formatSize(v.size),
+                        url: v.url,
+                      }) as FileToDownload,
+                  ),
+              )
+            },
+            previewUrl: mod2?.screenshots?.[0]?.url ?? '/Celemod.png',
+            author: mod2.submitter,
+            isInstalled: installedModIDs.includes(mod2.gameBananaId?.toString()),
+            other: `${mod2.likes} 🥰 · ${processLargeNum(mod2.views)} 👀 · ${processLargeNum(mod2.downloads)} 💾`,
+            detail: () =>
+              Promise.resolve({
+                description: mod2.description,
+                authors: mod2.credits.map((v) => v.authors.map((v) => v.name)).flat(),
+                images: mod2.screenshots.map((v) => v.url),
+                files: mod2.files.map((v) => ({ name: v.description, downloadUrl: v.url })),
+                lastUpdate: mod2.latestUpdateAddedTime,
+                externalUrl: mod2.pageUrl,
+              }),
+          }
 
           return (
-            <div
-              style={{
-                margin: GUTTER_SIZE,
-                boxSizing: 'border-box',
-              }}
-            >
-              <div
-                style={{
-                  width: 330,
-                  height: 220,
-                }}
-              >
-                {isVisible && (
-                  <Mod mod={mod} modFolder={props.modFolder} isInstalled={mod.isInstalled} />
-                )}
-              </div>
-            </div>
-          ) as any
+            <Mod
+              key={mod.name}
+              // @ts-ignore
+              mod={mod}
+              modFolder={props.modFolder}
+              isInstalled={mod.isInstalled}
+            />
+          )
         })}
-        <div className="padding"></div>
       </div>
 
-      {loading && (
-        <div
-          className="loader"
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            height: 24,
-            zIndex: 999,
-          }}
-        >
-          <div className="bar"></div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 py-4">
+          <HeroButton
+            variant="secondary"
+            size="sm"
+            isDisabled={page <= 1}
+            onPress={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            <ChevronLeft />
+          </HeroButton>
+          <span className="text-sm text-muted px-2">
+            {page} / {totalPages}
+          </span>
+          <HeroButton
+            variant="secondary"
+            size="sm"
+            isDisabled={page >= totalPages}
+            onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            <ChevronRight />
+          </HeroButton>
         </div>
       )}
 
-      {<div className="padding"></div>}
+      {loading && (
+        <div className="loader" style={{ position: 'fixed', bottom: 0, height: 24, zIndex: 999 }}>
+          <div className="bar"></div>
+        </div>
+      )}
     </div>
   )
+}
+
+export const ModList = (props: {
+  mods: Content[]
+  modFolder: string
+  loading?: boolean
+  currentPage?: number
+  totalPages?: number
+  onPageChange?: (page: number) => void
+}) => {
+  const [loading, setLoading] = useState(true)
+  const [installedModIDs, setInstalledModIDs] = useState<string[] | null>(null)
+
+  useEffect(() => {
+    callRemote('get_installed_mod_ids', props.modFolder).then((ids: string[]) => {
+      setInstalledModIDs(ids)
+    })
+  }, [props.modFolder])
+
+  useEffect(() => {
+    setLoading(props.loading ?? false)
+  }, [props.loading])
+
+  if (installedModIDs === null) {
+    return <NoInstalledMods />
+  }
+
+  return <HasInstalledMods installedModIDs={installedModIDs} loading={loading} props={props} />
 }

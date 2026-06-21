@@ -14,8 +14,7 @@ import {
   useUseMultiThread,
 } from '../states'
 import { useEffect } from 'react'
-import { Checkbox, Select, ListBox } from '@heroui/react'
-import { Button } from '../components/Button'
+import { Checkbox, Select, ListBox, Heading, Card, Button } from '@heroui/react'
 import { createPopup, PopupContext } from '../components/Popup'
 import { useGlobalContext } from 'src/App'
 
@@ -142,25 +141,14 @@ export const Home = () => {
     })()
   }, [currentProfile, gamePath, alwaysOnMods, currentProfileName])
 
-  const formatTime = (time: number) => {
-    if (time === 0) return i18n.t('未知')
-    const now = Date.now()
-    const diff = now - time
-    if (diff < 1000 * 60) return i18n.t('刚刚')
-    if (diff < 1000 * 60 * 60)
-      return i18n.t('{slot0}分钟前', { slot0: Math.floor(diff / 1000 / 60) })
-    if (diff < 1000 * 60 * 60 * 24)
-      return i18n.t('{slot0}小时前', {
-        slot0: Math.floor(diff / 1000 / 60 / 60),
-      })
-    if (diff < 1000 * 60 * 60 * 24 * 30)
-      return i18n.t('{slot0}天前', {
-        slot0: Math.floor(diff / 1000 / 60 / 60 / 24),
-      })
-    if (diff < 1000 * 60 * 60 * 24 * 30 * 12)
-      return i18n.t('{slot0}月前', {
-        slot0: Math.floor(diff / 1000 / 60 / 60 / 24 / 30),
-      })
+  const fmt = (t: number) => {
+    if (t === 0) return i18n.t('未知')
+    const d = Date.now() - t
+    if (d < 60000) return i18n.t('刚刚')
+    if (d < 3600000) return i18n.t('{slot0}分钟前', { slot0: Math.floor(d / 60000) })
+    if (d < 86400000) return i18n.t('{slot0}小时前', { slot0: Math.floor(d / 3600000) })
+    if (d < 2592000000) return i18n.t('{slot0}天前', { slot0: Math.floor(d / 86400000) })
+    if (d < 31536000000) return i18n.t('{slot0}月前', { slot0: Math.floor(d / 2592000000) })
     return i18n.t('很久以前')
   }
 
@@ -169,20 +157,19 @@ export const Home = () => {
   const { installedMods } = useInstalledMods()
 
   return (
-    <div className="home">
-      <div className="info">
-        <span className="part">
-          <img src="/Celemod.png" alt="" srcSet="" />
-        </span>
-        <span className="part">
-          <div className="title">CeleMod</div>
-          <div className="subtitle">An alternative mod manager for Celeste</div>
-        </span>
+    <div className="flex flex-col gap-10 p-6 max-w-2xl">
+      <div className="flex items-center gap-4">
+        <img src="/Celemod.png" alt="" className="size-12 rounded-xl" />
+        <div>
+          <Heading level={1} className="text-xl">
+            CeleMod
+          </Heading>
+          <p className="text-sm text-muted">An alternative mod manager for Celeste</p>
+        </div>
       </div>
-      <br />
 
-      {gamePath ? (
-        <div className="config">
+      <div>
+        {gamePath ? (
           <GameSelector
             paths={gamePaths}
             onSelect={(value: string) => {
@@ -202,171 +189,158 @@ export const Home = () => {
               }, 20000)
             }}
           />
-        </div>
-      ) : (
-        <div className="config">
-          {i18n.t('未找到游戏！请先安装 Steam 商店或 Epic 商店版的 Celeste，或')}
-          <span
-            onClick={() => {
-              selectGamePath(setGamePath)
-            }}
-            style={{
-              color: '#a77fdb',
-            }}
-          >
-            {i18n.t('点此手动选择')}
-          </span>
-        </div>
-      )}
-
-      <div className="config">
-        <Icon name="download" />
-        &nbsp;
-        <span>{i18n.t('下载设置')}</span>
-      </div>
-
-      <div className="config-block">
-        <span>{i18n.t('下载镜像')}</span>&nbsp;
-        <Select
-          className="w-40"
-          variant="secondary"
-          value={downloadMirror}
-          onChange={(v) => setDownloadMirror(v as string)}
-        >
-          <Select.Trigger>
-            <Select.Value />
-            <Select.Indicator />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              <ListBox.Item id="0x0ade" textValue="0x0ade">
-                0x0ade
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="gamebanana" textValue="GameBanana">
-                GameBanana
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="wegfan" textValue="WEGFan">
-                WEGFan
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-            </ListBox>
-          </Select.Popover>
-        </Select>
-      </div>
-
-      <div className="config-block">
-        <Checkbox
-          isSelected={useMultiThread}
-          onChange={(v) => {
-            setUseMultiThread(v)
-          }}
-        >
-          <Checkbox.Content>
-            <Checkbox.Control>
-              <Checkbox.Indicator />
-            </Checkbox.Control>
-            {i18n.t('使用 ureq 多线程下载')}
-          </Checkbox.Content>
-        </Checkbox>
-      </div>
-
-      <div className="config">
-        <Icon name="file" />
-        &nbsp;
-        <span>{i18n.t('Profile 选择')}</span>
-      </div>
-
-      <div className="config-block profiles">
-        {profiles.map((v) => (
-          <div
-            className={`profile ${v.name === currentProfileName && 'selected'}`}
-            onClick={() => {
-              globalCtx.blacklist.switchProfile(v.name)
-            }}
-          >
-            <div className="name">{v.name}</div>
-            <div className="info">
-              <span className="tips">{i18n.t('上次启动')}</span>
-              <span className="inf">{formatTime(lastUseMap[v.name] || 0)}</span>
-            </div>
-
-            <div className="info">
-              <span className="tips">{i18n.t('启用的 Mod 数')}</span>
-              <span className="inf">{installedMods.length - v.mods.length}</span>
-            </div>
-
+        ) : (
+          <p>
+            {i18n.t('未找到游戏！请先安装 Steam 商店或 Epic 商店版的 Celeste，或')}
             <Button
-              onClick={
-                // @ts-ignore
-                (e) => {
-                  e.stopPropagation()
+              variant="tertiary"
+              className="ml-1 text-accent"
+              onPress={() => selectGamePath(setGamePath)}
+            >
+              {i18n.t('点此手动选择')}
+            </Button>
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Heading level={2} className="flex items-center gap-2 text-base">
+          <Icon name="download" /> {i18n.t('下载设置')}
+        </Heading>
+
+        <div className="rounded-xl flex flex-col gap-4 mt-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm shrink-0">{i18n.t('下载镜像')}</span>
+            <Select
+              className="w-40"
+              variant="secondary"
+              value={downloadMirror}
+              onChange={(v) => setDownloadMirror(v as string)}
+            >
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  <ListBox.Item id="0x0ade" textValue="0x0ade">
+                    0x0ade
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="gamebanana" textValue="GameBanana">
+                    GameBanana
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="wegfan" textValue="WEGFan">
+                    WEGFan
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                </ListBox>
+              </Select.Popover>
+            </Select>
+          </div>
+          <Checkbox isSelected={useMultiThread} onChange={(v) => setUseMultiThread(v)}>
+            <Checkbox.Content>
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              {i18n.t('使用 ureq 多线程下载')}
+            </Checkbox.Content>
+          </Checkbox>
+        </div>
+      </div>
+
+      <div>
+        <Heading level={2} className="flex items-center gap-2 text-base">
+          <Icon name="file" /> {i18n.t('Profile 选择')}
+        </Heading>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+          {profiles.map((v) => (
+            <Card
+              key={v.name}
+              className={`p-3 transition-colors ${v.name === currentProfileName ? 'ring-2 ring-accent' : ''}`}
+              onClick={() => {
+                globalCtx.blacklist.switchProfile(v.name)
+              }}
+            >
+              <Card.Title className="text-sm font-semibold">{v.name}</Card.Title>
+              <Card.Description className="text-xs text-muted mt-1">
+                {i18n.t('上次启动')}: {fmt(lastUseMap[v.name] || 0)}
+              </Card.Description>
+              <Card.Description className="text-xs text-muted">
+                {i18n.t('启用的 Mod 数')}: {installedMods.length - v.mods.length}
+              </Card.Description>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-2"
+                onPress={(e: any) => {
+                  e.stopPropagation?.()
                   globalCtx.blacklist.switchProfile(v.name)
                   lastUseMap[v.name] = Date.now()
-                  // save()
                   setLastUseMap(lastUseMap)
                   mask.setMaskEnabled(true)
                   mask.setMaskText(i18n.t('正在启动'))
-                  setTimeout(() => {
-                    callRemote('start_game_directly', gamePath || gamePaths[0], false)
-                  }, 300)
+                  setTimeout(
+                    () => callRemote('start_game_directly', gamePath || gamePaths[0], false),
+                    300,
+                  )
+                  setTimeout(() => mask.setMaskEnabled(false), 20000)
+                }}
+              >
+                {i18n.t('启动')}
+              </Button>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-                  setTimeout(() => {
-                    mask.setMaskEnabled(false)
-                  }, 20000)
-                }
-              }
+      <div>
+        <Heading level={2} className="flex items-center gap-2 text-base">
+          <Icon name="edit" /> {i18n.t('界面设置')}
+        </Heading>
+
+        <div className="rounded-xl mt-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm">{i18n.t('语言/Language')}</span>
+            <Select
+              className="w-40"
+              variant="secondary"
+              value={i18n.language}
+              onChange={(v) => {
+                const lang = v as string
+                i18n.changeLanguage(lang)
+                setDownloadMirror(lang === 'zh-CN' ? 'wegfan' : '0x0ade')
+              }}
             >
-              {i18n.t('启动')}
-            </Button>
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  <ListBox.Item id="zh-CN" textValue="简体中文">
+                    {i18n.t('简体中文')}
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="en-US" textValue="English">
+                    English
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="ru-RU" textValue="русский">
+                    русский
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                  <ListBox.Item id="pt-BR" textValue="Brazilian Portuguese">
+                    Brazilian Portuguese
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                </ListBox>
+              </Select.Popover>
+            </Select>
           </div>
-        ))}
-      </div>
-
-      <div className="config theme">
-        <Icon name="edit" />
-        &nbsp;
-        <span>{i18n.t('界面设置')}</span>
-      </div>
-
-      <div className="config-block">
-        <span>{i18n.t('语言/Language')}</span>&nbsp;
-        <Select
-          className="w-40"
-          variant="secondary"
-          value={i18n.language}
-          onChange={(v) => {
-            const lang = v as string
-            i18n.changeLanguage(lang)
-            setDownloadMirror(lang === 'zh-CN' ? 'wegfan' : '0x0ade')
-          }}
-        >
-          <Select.Trigger>
-            <Select.Value />
-            <Select.Indicator />
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              <ListBox.Item id="zh-CN" textValue="简体中文">
-                {i18n.t('简体中文')}
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="en-US" textValue="English">
-                English
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="ru-RU" textValue="русский">
-                русский
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="pt-BR" textValue="Brazilian Portuguese">
-                Brazilian Portuguese
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-            </ListBox>
-          </Select.Popover>
-        </Select>
+        </div>
       </div>
     </div>
   )

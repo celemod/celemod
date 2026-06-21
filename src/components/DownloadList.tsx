@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import { Icon } from './Icon'
 import { Download } from '../context/download'
+import { Heading } from '@heroui/react'
 
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
@@ -126,7 +127,7 @@ export const DownloadListMenu = () => {
 
   return (
     <menu className="popup downloadList">
-      <h2>{i18n.t('下载任务')}</h2>
+      <Heading level={4}>{i18n.t('下载任务')}</Heading>
       <div className="taskList">
         {Object.values(downloadTasks)
           .filter((v) => v.state !== 'finished' || v.canceled)

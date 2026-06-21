@@ -5,9 +5,9 @@ import { ModList } from '../components/ModList'
 import { currentMirror, initSearchSort, useGamePath, useSearchSort } from '../states'
 import { Button } from '../components/Button'
 import { Icon } from '../components/Icon'
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
 import { Content, searchSubmission } from '../api/wegfan'
-import { Select, ListBox } from '@heroui/react'
+import { Select, ListBox, Input } from '@heroui/react'
 import { enforceEverest } from '../components/EnforceEverestPage'
 
 const categoryIdMap = {
@@ -36,7 +36,6 @@ export const Search = () => {
   initSearchSort()
   const [sort, setSort] = useSearchSort()
   const [currentPage, setCurrentPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
 
   const fetchModPage = async (page: number) => {
     console.log('fetching', page)
@@ -57,33 +56,37 @@ export const Search = () => {
   }
 
   useEffect(() => {
+    loadingLock.current = false
+  }, [mods])
+
+  function handleSearch() {
     setMods([])
     setCurrentPage(1)
     fetchModPage(1).then((v) => {
       setMods(v.content)
-      setHasMore(v.hasNextPage)
     })
-  }, [type, search, sort])
+  }
 
-  useEffect(() => {
-    loadingLock.current = false
-  }, [mods])
+  useEffect(handleSearch, [])
 
   return (
     <Fragment>
-      <div className="filter">
-        <input
-          type="text"
-          className="searchinput"
+      <div className="flex items-center space-x-2">
+        <Input
+          className={'grow'}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value)
+          }}
           onKeyUp={(e) => {
-            if (e.keyCode === 257) {
-              setSearch((e.target! as any).value)
+            if (e.code === 'Enter') {
+              handleSearch()
             }
           }}
         />
         <Button
           onClick={() => {
-            setSearch((document.querySelector('.searchinput') as any).value)
+            handleSearch()
           }}
         >
           <Icon name="search" />
@@ -180,88 +183,33 @@ export const Search = () => {
         </Select>
       </div>
 
-      {mods.length > 0 ? (
-        mods[0] ? (
-          <ModList
-            allowUpScroll={currentPage > 1}
-            loading={loading}
-            mods={mods}
-            haveMore={hasMore}
-            onLoadMore={useCallback(
-              (type: string) =>
-                new Promise((rs) => {
-                  console.log('load more', type)
-                  const forceScroll = async (top: number) => {
-                    const list = document.querySelector('.mod-list')!
-                    while (list.scrollTop !== top) {
-                      list.scrollTo({
-                        top: top,
-                        behavior: 'instant',
-                      })
-                      await new Promise((rs) => setTimeout(rs, 10))
-                    }
-                  }
-
-                  const fadeIn = () => {
-                    const list = document.querySelector('.mod-list')!
-                    // @ts-ignore
-                    list.style.opacity = '1'
-                  }
-
-                  const fadeOut = () => {
-                    const list = document.querySelector('.mod-list')!
-                    // @ts-ignore
-                    list.style.opacity = '0'
-                  }
-
-                  if (type === 'up') {
-                    if (currentPage === 1) return
-                    if (loadingLock.current) return
-                    loadingLock.current = true
-                    fadeOut()
-                    setCurrentPage((v) => {
-                      fetchModPage(v - 1).then((data) => {
-                        const newMods = data.content
-                        setHasMore(data.hasNextPage)
-                        if (newMods.length === 0) return
-                        setMods(newMods)
-                        rs(void 0)
-                        const list = document.querySelector('.mod-list')! as any
-                        const bottomPaddingUpTop =
-                          list.scrollTop + list.lastElementChild.offsetTop - list.offsetHeight - 80
-                        forceScroll(bottomPaddingUpTop).then(fadeIn)
-                      })
-                      return v - 1
-                    })
-                  } else {
-                    if (loadingLock.current) return
-                    loadingLock.current = true
-                    fadeOut()
-                    setCurrentPage((v) => {
-                      fetchModPage(v + 1).then((data) => {
-                        const newMods = data.content
-                        setHasMore(data.hasNextPage)
-                        if (newMods.length === 0) return
-                        setMods(newMods)
-                        rs(void 0)
-                        forceScroll(40).then(fadeIn)
-                      })
-                      return v + 1
-                    })
-                  }
-                }),
-              [currentPage, type],
-            )}
-            modFolder={selectedPath + '/Mods'}
-          />
+      <div className="mt-6">
+        {mods.length > 0 ? (
+          mods[0] ? (
+            <ModList
+              mods={mods}
+              loading={loading}
+              modFolder={selectedPath + '/Mods'}
+              currentPage={currentPage}
+              totalPages={Math.ceil(mods.length / 25)}
+              onPageChange={async (page: number) => {
+                if (loadingLock.current) return
+                loadingLock.current = true
+                const data = await fetchModPage(page)
+                setMods(data.content)
+                setCurrentPage(page)
+                loadingLock.current = false
+              }}
+            />
+          ) : (
+            <div>{i18n.t('加载失败，请重试')}</div>
+          )
+        ) : loading ? (
+          <div></div>
         ) : (
-          <div className="empty">{i18n.t('加载失败，请重试')}</div>
-        )
-      ) : loading ? (
-        <div className="empty"></div>
-      ) : (
-        <div className="empty">{i18n.t('无内容')}</div>
-      )}
+          <div>{i18n.t('无内容')}</div>
+        )}
+      </div>
     </Fragment>
   )
 }

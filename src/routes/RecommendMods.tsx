@@ -1,14 +1,14 @@
 import i18n from 'src/i18n'
 
 import { useAutoDisableNewMods, useGamePath, useInstalledMods } from '../states'
-import { Button } from '../components/Button'
+// import { Button } from '../components/Button'
 import { useState } from 'react'
 import { callRemote } from '../utils'
 import { _functionalMods, _skinMods } from '../resources/RecommendModData'
 import { useRef } from 'react'
 import { useGlobalContext } from '../App'
 import { enforceEverest } from '../components/EnforceEverestPage'
-import { Description, Heading } from '@heroui/react'
+import { Description, Heading, Button } from '@heroui/react'
 
 const modNameFromUrl = (url: string) => {
   return decodeURIComponent(url.split('/mods/').pop() || '')
@@ -74,6 +74,7 @@ const RMod = ({
       <div className="mt-2">
         <Button
           size="sm"
+          variant="secondary"
           onClick={() => {
             if (installed) return
             startDownloadHandler.download()
@@ -111,11 +112,13 @@ export const RecommendMods = () => {
       <Description>{i18n.t('这里将会列出一些推荐安装的模组及其简介，请按需安装')}</Description>
 
       <div className="grid grid-cols-2 gap-x-6 mt-4">
-        <div className="part">
-          <Heading level={4} className="flex items-center justify-between">
+        <div className="">
+          <Heading level={4} className="flex items-center gap-x-1 mb-2">
             {i18n.t('功能性模组')}
             <Button
               size="sm"
+              className={'h-7'}
+              variant="secondary"
               onClick={() => {
                 for (const mod of functionalMods
                   .filter((v) => !v.visible || v.visible(i18n.language))
@@ -153,8 +156,11 @@ export const RecommendMods = () => {
             })}
           </div>
         </div>
-        <div className="part">
-          <Heading level={4}>{i18n.t('皮肤模组')}</Heading>
+
+        <div>
+          <Heading level={4} className="mb-2">
+            {i18n.t('皮肤模组')}
+          </Heading>
           <div className="space-y-4">
             {skinMods.map((mod) => (
               <RMod

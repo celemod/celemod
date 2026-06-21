@@ -13,6 +13,17 @@
     "core:window:allow-set-size",
     "core:window:allow-set-position",
     "core:window:allow-center",
-    "core:event:default"
+    "core:event:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://*.weg.fan" },
+        { "url": "https://*.0x0a.de" },
+        { "url": "https://*.gamebanana.com" },
+        { "url": "https://*.myqcloud.com" },
+        { "url": "https://*.github.com" },
+        { "url": "https://*.githubusercontent.com" }
+      ]
+    }
   ]
 }

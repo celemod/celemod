@@ -1,12 +1,5 @@
-import { URLSearchParams, getCelemodUA } from '../utils'
-
-let _cachedUA: string | null = null
-const safeCelemodUA = async (): Promise<string> => {
-  if (!_cachedUA) {
-    _cachedUA = await getCelemodUA()
-  }
-  return _cachedUA
-}
+import { URLSearchParams } from '../utils'
+import { fetch } from '@tauri-apps/plugin-http'
 
 export interface WegfanSubmissionSearchResult {
   content: Content[]
@@ -155,12 +148,7 @@ export const searchSubmission = async ({
     params.set('includeExclusiveSubmissions', includeExclusiveSubmissions.toString())
   const url = `https://celeste.weg.fan/api/v2/submission/search?${params.toString()}`
   console.log('Search URL:', url)
-  const ua = await safeCelemodUA()
-  return fetch(url, {
-    headers: {
-      'User-Agent': ua,
-    },
-  })
-    .then((v) => v.json())
-    .then((v) => v.data)
+  const res = await fetch(url)
+  const json = await res.json()
+  return json.data
 }

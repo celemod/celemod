@@ -1,6 +1,7 @@
 import i18n from 'src/i18n'
 import { createPopup } from './Popup'
 import { callRemote, getCelemodVersion, compareVersion, listenProgress } from '../utils'
+import { fetch } from '@tauri-apps/plugin-http'
 import { Fragment } from 'react'
 import { useState } from 'react'
 import { ProgressIndicator } from './Progress'
@@ -20,17 +21,15 @@ export interface UpdateInfo {
 }
 
 export const getLatestUpdateInfo = async () => {
-  return await fetch(
+  const res = await fetch(
     'https://ganbei-hot-update-1258625969.file.myqcloud.com/celemod/updateInfo.json?' + Date.now(),
   )
-    .then((v) => v.text())
-    .then((v) =>
-      v
-        .split('\n')
-        .filter((v) => !v.trim().startsWith('//'))
-        .join('\n'),
-    )
-    .then((v) => JSON.parse(v) as UpdateInfo)
+  const text = await res.text()
+  const cleaned = text
+    .split('\n')
+    .filter((v) => !v.trim().startsWith('//'))
+    .join('\n')
+  return JSON.parse(cleaned) as UpdateInfo
 }
 
 export const checkUpdate = async () => {

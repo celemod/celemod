@@ -900,6 +900,7 @@ pub fn cancel_download_mod(name: String) -> bool {
     true
 }
 
+
 // ============================================================
 // Event-based commands (progress via Tauri events)
 // ============================================================

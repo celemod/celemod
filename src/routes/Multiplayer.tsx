@@ -30,6 +30,7 @@ export const Multiplayer = () => {
       <p>{i18n.t('为了在蔚蓝群服进行联机，你需要安装以下 Mod')}</p>
 
       <Mod
+        // @ts-ignore
         mod={{
           name: 'MiaoNet+',
           author: 'Saplonily',
