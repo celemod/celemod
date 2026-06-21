@@ -508,7 +508,7 @@ const ModOptionsOrderPanel = ({
 
   const applyOrder = (newOrder: string[]) => {
     onOrderChange(newOrder)
-    callRemote('set_mod_options_order', gamePath, currentProfileName, JSON.stringify(newOrder))
+    callRemote('set_mod_options_order', gamePath, currentProfileName, newOrder)
   }
 
   const move = (index: number, direction: -1 | 1) => {
@@ -1059,7 +1059,7 @@ export const Manage = () => {
 
           const handleDelete = () => {
             const modsToDelete = [name, ...selectedOrphans]
-            callRemote('delete_mods', gamePath, JSON.stringify(modsToDelete)).then(() => {
+            callRemote('delete_mods', gamePath, modsToDelete).then(() => {
               manageCtx.reloadMods()
               hide()
             })
@@ -1133,8 +1133,8 @@ export const Manage = () => {
       currentProfile,
       currentProfileName,
       reloadMods() {
-        callRemote('get_installed_mods', modPath).then((data: string) => {
-          setInstalledMods(JSON.parse(data))
+        callRemote('get_installed_mods', modPath).then((data: any[]) => {
+          setInstalledMods(data)
         })
       },
       fullTree,
@@ -1176,8 +1176,8 @@ export const Manage = () => {
         )
 
         useEffect(() => {
-          callRemote('check_all_mod_contents', modPath, (data: string) => {
-            const next = JSON.parse(data) as FullModCheckProgress
+          callRemote('check_all_mod_contents', modPath, (data: any) => {
+            const next = data
             setProgress(next)
             if (next.done) {
               setFullCheckRunning(false)
@@ -1193,7 +1193,7 @@ export const Manage = () => {
           callRemote(
             'delete_mod_files',
             modPath,
-            JSON.stringify(progress.issues.map((issue) => issue.file)),
+            progress.issues.map((issue) => issue.file),
             () => {
               setDeleteState('done')
               manageCtx.reloadMods()
