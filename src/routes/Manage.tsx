@@ -937,7 +937,7 @@ export const Manage = () => {
                 <div className="title">{i18n.t('未选择 Profile')}</div>
                 <div className="content">{i18n.t('请先选择一个 Profile 后再启用/禁用 Mod')}</div>
                 <div className="buttons">
-                  <button onClick={hide}>{i18n.t('确定')}</button>
+                  <Button onClick={hide}>{i18n.t('确定')}</Button>
                 </div>
               </div>
             )
@@ -1119,10 +1119,10 @@ export const Manage = () => {
               )}
 
               <div className="buttons">
-                <button onClick={hide}>{i18n.t('取消')}</button>
-                <button className="delete-confirm" onClick={handleDelete}>
+                <Button onClick={hide}>{i18n.t('取消')}</Button>
+                <Button className="delete-confirm" onClick={handleDelete}>
                   {i18n.t('确认删除')}
-                </button>
+                </Button>
               </div>
             </div>
           )
@@ -1247,18 +1247,18 @@ export const Manage = () => {
             )}
             <div className="buttons">
               {progress.done && issueCount > 0 && deleteState !== 'done' && (
-                <button onClick={deleteBrokenMods}>
+                <Button onClick={deleteBrokenMods}>
                   {deleteState === 'deleting' ? i18n.t('删除中...') : i18n.t('删除这些损坏 Mod')}
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 onClick={() => {
                   if (!progress.done) return
                   hide()
                 }}
               >
                 {progress.done ? i18n.t('确定') : i18n.t('检查中...')}
-              </button>
+              </Button>
             </div>
           </div>
         )
@@ -1400,7 +1400,7 @@ export const Manage = () => {
               {fullCheckRunning ? i18n.t('检查中...') : i18n.t('检查全部 Mod 是否正常')}
             </Button>
             {showUpdate && hasUpdateMods.length !== 0 && (
-              <button
+              <Button
                 onClick={() => {
                   if (hasUpdateBtnState !== i18n.t('更新全部')) return
                   setHasUpdateBtnState(i18n.t('更新中'))
@@ -1428,11 +1428,11 @@ export const Manage = () => {
                 }}
               >
                 {hasUpdateBtnState}
-              </button>
+              </Button>
             )}
 
             {missingDeps.length > 0 && (
-              <button
+              <Button
                 onClick={async () => {
                   if (fixDepsState === 'downloading') return
                   setFixDepsState('downloading')
@@ -1474,7 +1474,7 @@ export const Manage = () => {
                 {fixDepsState === 'downloading'
                   ? i18n.t('下载中')
                   : i18n.t('补全缺失依赖 ({count})', { count: missingDeps.length })}
-              </button>
+              </Button>
             )}
           </div>
           <div className="list" ref={modsTreeRef}>

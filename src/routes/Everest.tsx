@@ -155,8 +155,8 @@ export const Everest = () => {
             />
           </div>
           <div className="buttons">
-            <button onClick={hide}>{i18n.t('取消')}</button>
-            <button
+            <Button onClick={hide}>{i18n.t('取消')}</Button>
+            <Button
               onClick={() => {
                 const version = manualVersion.trim()
                 if (!version) return
@@ -165,7 +165,7 @@ export const Everest = () => {
               }}
             >
               {i18n.t('确认')}
-            </button>
+            </Button>
           </div>
         </div>
       )

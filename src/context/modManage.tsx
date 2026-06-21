@@ -4,6 +4,7 @@ import { useInstalledMods, useGamePath, useStorage, initGamePath, initModComment
 import { useEffect, useContext } from 'react'
 import { createPopup, PopupContext } from 'src/components/Popup'
 import { ProgressIndicator } from 'src/components/Progress'
+import { Button } from 'src/components/Button'
 
 let lastGamePath = ''
 export const createModManageContext = () => {
@@ -54,8 +55,8 @@ export const createModManageContext = () => {
                 <p>{invalidFiles.join(', ')}</p>
               </div>
               <div className="buttons">
-                <button onClick={hide}>{i18n.t('暂不处理')}</button>
-                <button
+                <Button onClick={hide}>{i18n.t('暂不处理')}</Button>
+                <Button
                   onClick={async () => {
                     try {
                       await callRemote('delete_mod_files', gamePath + '/Mods', invalidFiles)
@@ -67,7 +68,7 @@ export const createModManageContext = () => {
                   }}
                 >
                   {i18n.t('删除这些文件')}
-                </button>
+                </Button>
               </div>
             </div>
           )
@@ -118,7 +119,7 @@ export const createModManageContext = () => {
                           {i18n.t('正在使用缓存的 Mod 数据，可能已过期或不完整')}
                         </div>
                         <div className="buttons">
-                          <button onClick={hide}>{i18n.t('确定')}</button>
+                          <Button onClick={hide}>{i18n.t('确定')}</Button>
                         </div>
                       </div>
                     )
@@ -135,13 +136,13 @@ export const createModManageContext = () => {
                         <p>{String(e)}</p>
                       </div>
                       <div className="buttons">
-                        <button
+                        <Button
                           onClick={() => {
                             p.hide()
                           }}
                         >
                           {i18n.t('确定')}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )

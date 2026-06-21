@@ -25,6 +25,7 @@ export const Button = (props: {
   onClick?: any
   type?: ButtonType
   isDisabled?: boolean
+  className?: string
 }) => {
   return (
     <HeroButton
@@ -32,6 +33,7 @@ export const Button = (props: {
       onPress={props.onClick}
       variant={variantMap[props.type || 'default'] || 'secondary'}
       size={props.size || 'md'}
+      className={props.className}
     >
       {props.children}
     </HeroButton>
