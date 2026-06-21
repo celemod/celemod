@@ -8,6 +8,7 @@ import { _functionalMods, _skinMods } from '../resources/RecommendModData'
 import { useRef } from 'react'
 import { useGlobalContext } from '../App'
 import { enforceEverest } from '../components/EnforceEverestPage'
+import { Description, Heading } from '@heroui/react'
 
 const modNameFromUrl = (url: string) => {
   return decodeURIComponent(url.split('/mods/').pop() || '')
@@ -66,13 +67,13 @@ const RMod = ({
   startDownloadHandler.download = startDownload
 
   return (
-    <div className="rmod">
-      <div className="info">
-        <div className="name">{name}</div>
-        <div className="desc">{description}</div>
-      </div>
-      <div className="oper">
+    <div>
+      <Heading level={6}>{name}</Heading>
+      <p className="leading-4 text-xs text-muted">{description}</p>
+
+      <div className="mt-2">
         <Button
+          size="sm"
           onClick={() => {
             if (installed) return
             startDownloadHandler.download()
@@ -105,15 +106,16 @@ export const RecommendMods = () => {
   )
 
   return (
-    <div>
-      <h1>{i18n.t('推荐的模组')}</h1>
-      <p>{i18n.t('这里将会列出一些推荐安装的模组及其简介，请按需安装')}</p>
+    <div className="max-h-full">
+      <Heading level={1}>{i18n.t('推荐的模组')}</Heading>
+      <Description>{i18n.t('这里将会列出一些推荐安装的模组及其简介，请按需安装')}</Description>
 
-      <div className="mods">
+      <div className="grid grid-cols-2 gap-x-6 mt-4">
         <div className="part">
-          <h2>
+          <Heading level={4} className="flex items-center justify-between">
             {i18n.t('功能性模组')}
             <Button
+              size="sm"
               onClick={() => {
                 for (const mod of functionalMods
                   .filter((v) => !v.visible || v.visible(i18n.language))
@@ -129,8 +131,8 @@ export const RecommendMods = () => {
             >
               {i18n.t('下载推荐')}
             </Button>
-          </h2>
-          <div className="list">
+          </Heading>
+          <div className="space-y-4">
             {functionalMods.map((mod) => {
               const handler = (refDownloadHandlers.current[mod.name] ??= {})
               return (
@@ -152,8 +154,8 @@ export const RecommendMods = () => {
           </div>
         </div>
         <div className="part">
-          <h2>{i18n.t('皮肤模组')}</h2>
-          <div className="list">
+          <Heading level={4}>{i18n.t('皮肤模组')}</Heading>
+          <div className="space-y-4">
             {skinMods.map((mod) => (
               <RMod
                 name={mod.name}

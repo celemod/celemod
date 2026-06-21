@@ -102,7 +102,7 @@ const AppLayout = () => {
       >
         <DownloadListMenu />
         <div className="flex h-screen">
-          <nav className="flex flex-col gap-1 p-3 w-36 min-w-36 bg-surface overflow-y-auto">
+          <nav className="flex flex-col gap-1 p-3 w-40 min-w-40 bg-surface overflow-y-auto">
             <SidebarButton
               icon="home"
               name="Home"
@@ -173,7 +173,7 @@ const AppLayout = () => {
               </button>
             </div>
           </nav>
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-3">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/everest" element={<Everest />} />
