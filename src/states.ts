@@ -2,34 +2,7 @@ import { create } from 'zustand'
 import { ModBlacklistProfile } from './ipc/blacklist'
 import { useEffect, useState } from 'react'
 import { callRemote } from './utils'
-import type { Store } from '@tauri-apps/plugin-store'
-
-let storePromise: Promise<Store> | null = null
-function getStorePromise(): Promise<Store> {
-  if (!storePromise) {
-    // Dynamic import to avoid module-level side effects
-    storePromise = import('@tauri-apps/plugin-store').then((mod) => mod.Store.load('config.json'))
-  }
-  return storePromise
-}
-
-async function getStore(): Promise<Store> {
-  return await getStorePromise()
-}
-
-async function getRootValue(): Promise<Record<string, any>> {
-  const store = await getStore()
-  const val = await store.get<Record<string, any>>('root')
-  return val || {}
-}
-
-async function setRootKey(key: string, value: any): Promise<void> {
-  const store = await getStore()
-  const root = await getRootValue()
-  root[key] = value
-  await store.set('root', root)
-  await store.save()
-}
+import { Store } from '@tauri-apps/plugin-store'
 
 export const useCurrentBlacklistProfile = create<{
   currentProfileName: string
@@ -69,22 +42,27 @@ interface StorageHandle {
 
 export const useStorage = (): StorageHandle => {
   const [ready, setReady] = useState(false)
+  const [store, setStore] = useState<Store>()
 
   useEffect(() => {
-    getStore().then(() => setReady(true))
+    Store.load('config.json').then((st) => {
+      setStore(st)
+      setReady(true)
+    })
   }, [])
 
   return {
     get: async (key: string) => {
-      const root = await getRootValue()
-      return root[key]
+      if (!store) return
+      return await store?.get(key)
     },
     set: async (key: string, value: any) => {
-      await setRootKey(key, value)
+      if (!store) return
+      await store?.set(key, value)
     },
     save: async () => {
-      const store = await getStore()
-      await store.save()
+      if (!store) return
+      await store?.save()
     },
     ready,
   }

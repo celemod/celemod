@@ -181,6 +181,7 @@ export const Home = () => {
             launchGame={(v) => {
               lastUseMap[currentProfileName] = Date.now()
               setLastUseMap(lastUseMap)
+              st.set('lastUseMap', lastUseMap)
               st.save()
               toast(i18n.t('正在启动'))
               callRemote('start_game_directly', gamePath || gamePaths[0], v === 'origin')
@@ -277,6 +278,8 @@ export const Home = () => {
                   globalCtx.blacklist.switchProfile(v.name)
                   lastUseMap[v.name] = Date.now()
                   setLastUseMap(lastUseMap)
+                  st.set('lastUseMap', lastUseMap)
+                  st.save()
                   toast(i18n.t('正在启动'))
                   setTimeout(
                     () => callRemote('start_game_directly', gamePath || gamePaths[0], false),
@@ -316,7 +319,7 @@ export const Home = () => {
               <Select.Popover>
                 <ListBox>
                   <ListBox.Item id="zh-CN" textValue="简体中文">
-                    {i18n.t('简体中文')}
+                    简体中文
                     <ListBox.ItemIndicator />
                   </ListBox.Item>
                   <ListBox.Item id="en-US" textValue="English">
