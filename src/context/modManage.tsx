@@ -3,8 +3,8 @@ import { callRemote } from '../utils'
 import { useInstalledMods, useGamePath, useStorage, initGamePath, initModComments } from '../states'
 import { useEffect, useContext } from 'react'
 import { createPopup, PopupContext } from 'src/components/Popup'
-import { ProgressIndicator } from 'src/components/Progress'
 import { Button } from 'src/components/Button'
+import { toast } from '@heroui/react'
 
 let lastGamePath = ''
 export const createModManageContext = () => {
@@ -90,65 +90,26 @@ export const createModManageContext = () => {
         try {
           const ver = (await callRemote('get_everest_version', gamePath)) as string
           if (ver && ver.length > 2) {
-            setTimeout(async () => {
-              const popup = createPopup(
-                () => {
-                  return (
-                    <div className="loading-popup">
-                      <ProgressIndicator infinite />
-                      <span>{i18n.t('正在加载 Mod 列表，请稍等')}</span>
-                    </div>
-                  )
-                },
-                {
-                  cancelable: false,
-                },
-              )
-              try {
-                await ctx.reloadMods()
-                popup.hide()
-                ctx.checkInvalidZipMods()
-                const isUsingCache = await callRemote('is_using_cache')
-                if (isUsingCache)
-                  createPopup(() => {
-                    const { hide } = useContext(PopupContext)
-                    return (
-                      <div className="popup-content">
-                        <div className="title">{i18n.t('离线模式')}</div>
-                        <div className="content">
-                          {i18n.t('正在使用缓存的 Mod 数据，可能已过期或不完整')}
-                        </div>
-                        <div className="buttons">
-                          <Button onClick={hide}>{i18n.t('确定')}</Button>
-                        </div>
-                      </div>
-                    )
-                  })
-              } catch (e) {
-                popup.hide()
-                const p = createPopup(() => {
-                  return (
-                    <div className="popup-content">
-                      <div className="title">{i18n.t('加载 Mod 列表失败')}</div>
-                      <div className="content">
-                        <p>{i18n.t('请检查游戏路径是否正确，或网络连接是否正常')}</p>
-                        <p>{i18n.t('部分功能将不可用')}</p>
-                        <p>{String(e)}</p>
-                      </div>
-                      <div className="buttons">
-                        <Button
-                          onClick={() => {
-                            p.hide()
-                          }}
-                        >
-                          {i18n.t('确定')}
-                        </Button>
-                      </div>
-                    </div>
-                  )
+            const loadingId = toast(i18n.t('正在加载 Mod 列表，请稍等'))
+            try {
+              await ctx.reloadMods()
+              toast.close(loadingId)
+              ctx.checkInvalidZipMods()
+              const isUsingCache = await callRemote('is_using_cache')
+              if (isUsingCache) {
+                toast.warning(i18n.t('离线模式'), {
+                  description: i18n.t('正在使用缓存的 Mod 数据，可能已过期或不完整'),
                 })
               }
-            }, 10)
+            } catch {
+              toast.close(loadingId)
+              toast.danger(i18n.t('加载 Mod 列表失败'), {
+                description:
+                  i18n.t('请检查游戏路径是否正确，或网络连接是否正常') +
+                  ', ' +
+                  i18n.t('部分功能将不可用'),
+              })
+            }
           }
         } catch (e) {
           console.error('Failed to check everest version:', e)

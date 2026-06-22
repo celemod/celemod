@@ -9,6 +9,7 @@ crate-type = ["lib", "cdylib", "staticlib"]
 
 [dependencies]
 tauri = { version = "2", features = [] }
+tokio = { version = "1", features = ["rt", "sync"] }
 tauri-plugin-store = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell = "2"

@@ -2,6 +2,7 @@ import i18n from 'src/i18n'
 import { Fragment, createContext, useMemo, useEffect, useContext } from 'react'
 import { MemoryRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { Icon } from './components/Icon'
+import { Toast } from '@heroui/react'
 
 import { Search } from './routes/Search'
 import { Home } from './routes/Home'
@@ -91,6 +92,7 @@ const AppLayout = () => {
 
   return (
     <Fragment>
+      <Toast.Provider />
       {/* @ts-ignore */}
       <GlobalContext.Provider
         value={{

@@ -278,25 +278,36 @@ pub fn get_installed_mods_sync(mods_folder_path: String) -> Vec<LocalMod> {
         let Ok(entry) = entry else {
             continue;
         };
-        let res: anyhow::Result<_> = (|| -> anyhow::Result<LocalMod> {
-            let yaml = if entry.file_type().context("invalid file type")?.is_dir() {
-                let cache_path = entry.path().read_dir().unwrap().find(|v| {
-                    v.as_ref()
-                        .map(|v| {
-                            let name = v.file_name().to_string_lossy().to_string().to_lowercase();
+        // Skip entries that aren't mods (blacklist.txt, Cache, etc.)
+        let is_dir = entry.file_type().map(|t| t.is_dir()).unwrap_or(false);
+        let is_zip = entry.path().extension().map(|e| e == "zip").unwrap_or(false);
+        if !is_dir && !is_zip {
+            continue;
+        }
+        // Skip directories that don't contain everest.yaml/everest.yml
+        if is_dir {
+            let has_everest_yaml = entry.path().read_dir()
+                .map(|rd| {
+                    rd.filter_map(|e| e.ok())
+                        .any(|e| {
+                            let name = e.file_name().to_string_lossy().to_lowercase();
                             name == "everest.yaml" || name == "everest.yml"
                         })
-                        .unwrap_or(false)
-                });
-                match cache_path {
-                    Some(cache_path) => {
-                        let cache_path = cache_path.unwrap().path();
-                        read_to_string_bom(&cache_path)?
-                    }
-                    None => {
-                        anyhow::bail!("No yaml found");
-                    }
-                }
+                })
+                .unwrap_or(false);
+            if !has_everest_yaml {
+                continue;
+            }
+        }
+        let res: anyhow::Result<_> = (|| -> anyhow::Result<LocalMod> {
+            let yaml = if is_dir {
+                let yaml_path = entry.path().read_dir().unwrap().find(|v| {
+                    v.as_ref().is_ok_and(|v| {
+                        let name = v.file_name().to_string_lossy().to_string().to_lowercase();
+                        name == "everest.yaml" || name == "everest.yml"
+                    })
+                }).unwrap().unwrap().path();
+                read_to_string_bom(&yaml_path)?
             } else if entry
                 .path()
                 .extension()
@@ -628,16 +639,24 @@ pub fn start_game_directly(path: String, origin: bool) {
 }
 
 #[tauri::command]
-pub fn get_installed_mods(mods_folder_path: String) -> Vec<LocalMod> {
-    get_installed_mods_sync(mods_folder_path)
+pub async fn get_installed_mods(mods_folder_path: String) -> Vec<LocalMod> {
+    tokio::task::spawn_blocking(move || {
+        get_installed_mods_sync(mods_folder_path)
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
-pub fn get_installed_mod_ids(mods_folder_path: String) -> Vec<String> {
-    get_installed_mods_sync(mods_folder_path)
-        .into_iter()
-        .map(|v| v.game_banana_id.to_string())
-        .collect()
+pub async fn get_installed_mod_ids(mods_folder_path: String) -> Vec<String> {
+    tokio::task::spawn_blocking(move || {
+        get_installed_mods_sync(mods_folder_path)
+            .into_iter()
+            .map(|v| v.game_banana_id.to_string())
+            .collect::<Vec<_>>()
+    })
+    .await
+    .unwrap_or_default()
 }
 
 #[tauri::command]
