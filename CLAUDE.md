@@ -32,7 +32,7 @@ cargo tauri build
 bun run build
 
 # Rust checks
-cargo check -p cele-mod
+cargo check -p celemod
 ```
 
 ## Project Structure
