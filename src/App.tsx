@@ -12,13 +12,11 @@ import { RecommendMods } from './routes/RecommendMods'
 import { initMirror, useGamePath } from './states'
 import { createModManageContext } from './context/modManage'
 import { createDownloadContext } from './context/download'
-import { DownloadListMenu } from './components/DownloadList'
+import { DownloadListPopover } from './components/DownloadList'
 import { useEverestCtx as createEverestContext } from './context/everest'
 import { Everest } from './routes/Everest'
 import { createBlacklistContext } from './context/blacklist'
 import { RecommendMaps } from './routes/RecommendMaps'
-import { Modal } from '@heroui/react'
-import { Button } from './components/Button'
 import { useTranslation } from 'react-i18next'
 
 // Map page names to route paths
@@ -159,21 +157,8 @@ const AppLayout = () => {
             )}
 
             <div className="mt-auto flex justify-center py-2"></div>
-            <Modal>
-              <Button type="default">
-                <Icon name="download" />
-              </Button>
 
-              <Modal.Backdrop>
-                <Modal.Container placement="top">
-                  <Modal.Dialog>
-                    <Modal.Body>
-                      <DownloadListMenu />
-                    </Modal.Body>
-                  </Modal.Dialog>
-                </Modal.Container>
-              </Modal.Backdrop>
-            </Modal>
+            <DownloadListPopover />
           </nav>
 
           <div className="flex-1 overflow-y-auto p-3">

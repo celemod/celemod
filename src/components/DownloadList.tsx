@@ -3,8 +3,9 @@ import { useEffect } from 'react'
 import { useState } from 'react'
 import { Icon } from './Icon'
 import { Download } from '../context/download'
-import { Heading } from '@heroui/react'
+import { Popover } from '@heroui/react'
 import { useTranslation } from 'react-i18next'
+import { Button } from './Button'
 
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
@@ -115,10 +116,12 @@ const Task = ({ task, download }: { task: Download.TaskInfo; download: any }) =>
   )
 }
 
-export const DownloadListMenu = () => {
+export function DownloadListPopover() {
   const { t } = useTranslation()
   const { download } = useGlobalContext()
   const [downloadTasks, setDownloadTasks] = useState(download.downloadTasks.current)
+
+  const tasks = Object.values(downloadTasks)
 
   useEffect(() => {
     download.eventBus.on('taskListChanged', () => {
@@ -127,15 +130,23 @@ export const DownloadListMenu = () => {
   }, [])
 
   return (
-    <menu className="popup downloadList">
-      <Heading level={4}>{t('下载任务')}</Heading>
-      <div className="taskList">
-        {Object.values(downloadTasks)
-          .filter((v) => v.state !== 'finished' || v.canceled)
-          .map((task) => (
-            <Task task={task} download={download} />
-          ))}
-      </div>
-    </menu>
+    <Popover>
+      <Button type="default">
+        <Icon name={tasks?.length ? 'loaderPinwheel' : 'download'} />
+      </Button>
+
+      <Popover.Content placement="top left">
+        <Popover.Dialog>
+          <Popover.Heading>{t('下载任务')}</Popover.Heading>
+          <div>
+            {tasks
+              .filter((v) => v.state !== 'finished' || v.canceled)
+              .map((task) => (
+                <Task key={task.name} task={task} download={download} />
+              ))}
+          </div>
+        </Popover.Dialog>
+      </Popover.Content>
+    </Popover>
   )
 }
