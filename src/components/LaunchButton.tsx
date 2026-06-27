@@ -6,12 +6,10 @@ export function LanuchButton({
   className,
   onClick,
   text,
-  startingText,
 }: {
   className?: string
   onClick?: (e: any) => void
   text?: ReactNode
-  startingText?: ReactNode
 }) {
   const { t } = useTranslation()
   const [isStarting, setIsStarting] = useState(false)
@@ -21,7 +19,7 @@ export function LanuchButton({
 
     setTimeout(() => {
       setIsStarting(false)
-    }, 4000)
+    }, 6000)
   }
 
   return (
@@ -36,7 +34,7 @@ export function LanuchButton({
         handleStart()
       }}
     >
-      {isStarting ? startingText || t('正在启动') : text || t('启动')}
+      {isStarting ? t('正在启动') : text || t('启动')}
     </Button>
   )
 }

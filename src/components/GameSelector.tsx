@@ -58,7 +58,6 @@ export const GameSelector = (props: {
 
       <div className="flex items-center gap-x-1 mt-2">
         <LanuchButton
-          text={t('Everest')}
           onClick={() => {
             props.launchGame('everest')
           }}
