@@ -1,13 +1,13 @@
-import i18n from 'src/i18n'
-
 import { useGamePath } from '../states'
 import { Mod } from '../components/ModList'
 import { Button } from '../components/Button'
 import { useState, useEffect } from 'react'
 import { callRemote } from '../utils'
 import { enforceEverest } from '../components/EnforceEverestPage'
+import { useTranslation } from 'react-i18next'
 
 export const Multiplayer = () => {
+  const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest
 
@@ -25,16 +25,16 @@ export const Multiplayer = () => {
     <div className="multiplayer">
       <h1>
         Ⅰ&nbsp;
-        {i18n.t('安装 Mod')}
+        {t('安装 Mod')}
       </h1>
-      <p>{i18n.t('为了在蔚蓝群服进行联机，你需要安装以下 Mod')}</p>
+      <p>{t('为了在蔚蓝群服进行联机，你需要安装以下 Mod')}</p>
 
       <Mod
         // @ts-ignore
         mod={{
           name: 'MiaoNet+',
           author: 'Saplonily',
-          other: i18n.t('蔚蓝群服联机 Mod'),
+          other: t('蔚蓝群服联机 Mod'),
           downloadUrl: () =>
             Promise.resolve('https://celeste.weg.fan/api/v2/download/mods/MiaoNet'),
           previewUrl:
@@ -46,22 +46,22 @@ export const Multiplayer = () => {
 
       <h1>
         Ⅱ&nbsp;
-        {i18n.t('注册账号')}
+        {t('注册账号')}
       </h1>
-      <p>{i18n.t('你需要在 Celeste 群服论坛 注册一个账号')}</p>
+      <p>{t('你需要在 Celeste 群服论坛 注册一个账号')}</p>
       <Button
         onClick={async () => {
           await callRemote('open_url', 'https://bbs.celemiao.com/')
         }}
       >
-        {i18n.t('进入注册页')}
+        {t('进入注册页')}
       </Button>
 
       <h1>
         Ⅲ&nbsp;
-        {i18n.t('登录账号')}
+        {t('登录账号')}
       </h1>
-      <p>{i18n.t('打开游戏后，你将需要在 Mod 设置中启用并登录群服 Mod')}</p>
+      <p>{t('打开游戏后，你将需要在 Mod 设置中启用并登录群服 Mod')}</p>
 
       <style
         dangerouslySetInnerHTML={{

@@ -1,5 +1,3 @@
-import i18n from 'src/i18n'
-
 import { useContext, useState } from 'react'
 import { GameSelector } from '../components/GameSelector'
 import { Icon } from '../components/Icon'
@@ -18,8 +16,11 @@ import { Checkbox, Select, ListBox, Heading, Card, Button } from '@heroui/react'
 import { createPopup, PopupContext } from '../components/Popup'
 import { useGlobalContext } from 'src/App'
 import { LanuchButton } from 'src/components/LaunchButton'
+import { useTranslation } from 'react-i18next'
 
 export const Home = () => {
+  const { t, i18n } = useTranslation()
+
   const [gamePath, setGamePath] = useGamePath()
   const [gamePaths, setGamePaths] = useState<string[]>([])
 
@@ -102,8 +103,8 @@ export const Home = () => {
           const { hide } = useContext(PopupContext)
           return (
             <div className="popup-content spacey">
-              <Heading level={5}>{i18n.t('同步黑名单 Mod 列表')}</Heading>
-              <p>{i18n.t('当前的 blacklist.txt 与配置文件不同。您想要同步配置文件以匹配吗？')}</p>
+              <Heading level={5}>{t('同步黑名单 Mod 列表')}</Heading>
+              <p>{t('当前的 blacklist.txt 与配置文件不同。您想要同步配置文件以匹配吗？')}</p>
               <p>
                 {`不同的 Mod: ${[
                   ...new Set([
@@ -112,7 +113,7 @@ export const Home = () => {
                   ]),
                 ].join(', ')}`}
               </p>
-              <p>{i18n.t('注意，该功能不支持通配符等')}</p>
+              <p>{t('注意，该功能不支持通配符等')}</p>
               <div className="space-x-2">
                 <Button
                   variant="secondary"
@@ -130,10 +131,10 @@ export const Home = () => {
                     hide()
                   }}
                 >
-                  {i18n.t('同步')}
+                  {t('同步')}
                 </Button>
                 <Button variant="secondary" onClick={() => hide()}>
-                  {i18n.t('忽略')}
+                  {t('忽略')}
                 </Button>
               </div>
             </div>
@@ -143,15 +144,15 @@ export const Home = () => {
     })()
   }, [currentProfile, gamePath, alwaysOnMods, currentProfileName])
 
-  const fmt = (t: number) => {
-    if (t === 0) return i18n.t('未知')
-    const d = Date.now() - t
-    if (d < 60000) return i18n.t('刚刚')
-    if (d < 3600000) return i18n.t('{slot0}分钟前', { slot0: Math.floor(d / 60000) })
-    if (d < 86400000) return i18n.t('{slot0}小时前', { slot0: Math.floor(d / 3600000) })
-    if (d < 2592000000) return i18n.t('{slot0}天前', { slot0: Math.floor(d / 86400000) })
-    if (d < 31536000000) return i18n.t('{slot0}月前', { slot0: Math.floor(d / 2592000000) })
-    return i18n.t('很久以前')
+  const formatTime = (time: number) => {
+    if (time === 0) return t('未知')
+    const d = Date.now() - time
+    if (d < 60000) return t('刚刚')
+    if (d < 3600000) return t('{slot0}分钟前', { slot0: Math.floor(d / 60000) })
+    if (d < 86400000) return t('{slot0}小时前', { slot0: Math.floor(d / 3600000) })
+    if (d < 2592000000) return t('{slot0}天前', { slot0: Math.floor(d / 86400000) })
+    if (d < 31536000000) return t('{slot0}月前', { slot0: Math.floor(d / 2592000000) })
+    return t('很久以前')
   }
 
   const [downloadMirror, setDownloadMirror] = useMirror()
@@ -189,13 +190,13 @@ export const Home = () => {
           />
         ) : (
           <p>
-            {i18n.t('未找到游戏！请先安装 Steam 商店或 Epic 商店版的 Celeste，或')}
+            {t('未找到游戏！请先安装 Steam 商店或 Epic 商店版的 Celeste，或')}
             <Button
               variant="tertiary"
               className="ml-1 text-accent"
               onPress={() => selectGamePath(setGamePath)}
             >
-              {i18n.t('点此手动选择')}
+              {t('点此手动选择')}
             </Button>
           </p>
         )}
@@ -203,12 +204,12 @@ export const Home = () => {
 
       <div>
         <Heading level={2} className="flex items-center gap-2 text-base">
-          <Icon name="download" /> {i18n.t('下载设置')}
+          <Icon name="download" /> {t('下载设置')}
         </Heading>
 
         <div className="rounded-xl flex flex-col gap-4 mt-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm shrink-0">{i18n.t('下载镜像')}</span>
+            <span className="text-sm shrink-0">{t('下载镜像')}</span>
             <Select
               className="w-40"
               variant="secondary"
@@ -242,7 +243,7 @@ export const Home = () => {
               <Checkbox.Control>
                 <Checkbox.Indicator />
               </Checkbox.Control>
-              {i18n.t('使用 ureq 多线程下载')}
+              {t('使用 ureq 多线程下载')}
             </Checkbox.Content>
           </Checkbox>
         </div>
@@ -250,7 +251,7 @@ export const Home = () => {
 
       <div>
         <Heading level={2} className="flex items-center gap-2 text-base">
-          <Icon name="file" /> {i18n.t('Profile 选择')}
+          <Icon name="file" /> {t('Profile 选择')}
         </Heading>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
@@ -264,10 +265,10 @@ export const Home = () => {
             >
               <Card.Title className="text-sm font-semibold">{v.name}</Card.Title>
               <Card.Description className="text-xs text-muted mt-1">
-                {i18n.t('上次启动')}: {fmt(lastUseMap[v.name] || 0)}
+                {t('上次启动')}: {formatTime(lastUseMap[v.name] || 0)}
               </Card.Description>
               <Card.Description className="text-xs text-muted">
-                {i18n.t('启用的 Mod 数')}: {installedMods.length - v.mods.length}
+                {t('启用的 Mod 数')}: {installedMods.length - v.mods.length}
               </Card.Description>
 
               <LanuchButton
@@ -289,12 +290,12 @@ export const Home = () => {
 
       <div>
         <Heading level={2} className="flex items-center gap-2 text-base">
-          <Icon name="edit" /> {i18n.t('界面设置')}
+          <Icon name="edit" /> {t('界面设置')}
         </Heading>
 
         <div className="rounded-xl mt-2">
           <div className="flex items-center gap-3">
-            <span className="text-sm">{i18n.t('语言/Language')}</span>
+            <span className="text-sm">{t('语言/Language')}</span>
             <Select
               className="w-40"
               variant="secondary"

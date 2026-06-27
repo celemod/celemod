@@ -1,4 +1,3 @@
-import i18n from 'src/i18n'
 import { createContext } from 'react'
 import {
   BackendDep,
@@ -19,6 +18,7 @@ import { enforceEverest } from '../components/EnforceEverestPage'
 import { createPopup, PopupContext } from '../components/Popup'
 import { ProgressIndicator } from '../components/Progress'
 import { Card, Checkbox, Heading, Input } from '@heroui/react'
+import { useTranslation } from 'react-i18next'
 
 type DepState = 'resolved' | 'missing' | 'not-enabled' | 'mismatched-version'
 
@@ -127,9 +127,10 @@ const ModBadge = ({
 }
 
 const ModMissing = ({ name, version, optional }: MissingModDepInfo) => {
+  const { t } = useTranslation()
   const { download } = useGlobalContext()
   const ctx = useContext(modListContext)
-  const [state, setState] = useState(i18n.t('缺失'))
+  const [state, setState] = useState(t('缺失'))
   const [gbFileID, setGBFileID] = useState<string | null>(null)
   useEffect(() => {
     handler()
@@ -139,8 +140,8 @@ const ModMissing = ({ name, version, optional }: MissingModDepInfo) => {
       if (data) {
         const [gbFileId] = data
         setGBFileID(gbFileId)
-        if (optional) setState(i18n.t('点击下载'))
-        else setState(i18n.t('缺失·点击下载'))
+        if (optional) setState(t('点击下载'))
+        else setState(t('缺失·点击下载'))
       }
     }
   }, [name])
@@ -154,18 +155,18 @@ const ModMissing = ({ name, version, optional }: MissingModDepInfo) => {
         onClick={
           gbFileID !== null
             ? async () => {
-                setState(i18n.t('下载中'))
+                setState(t('下载中'))
                 download.downloadMod(name, gbFileID, {
                   autoDisableNewMods: ctx?.autoDisableNewMods || false,
                   onProgress: (task, progress) => {
                     setState(`${progress}% (${task.subtasks.length})`)
                   },
                   onFinished: () => {
-                    setState(i18n.t('下载完成'))
+                    setState(t('下载完成'))
                     ctx?.reloadMods()
                   },
                   onFailed: () => {
-                    setState(i18n.t('下载失败'))
+                    setState(t('下载失败'))
                   },
                 })
               }
@@ -176,7 +177,7 @@ const ModMissing = ({ name, version, optional }: MissingModDepInfo) => {
       </ModBadge>
       {optional && (
         <ModBadge bg="#ff9800" color="white">
-          {i18n.t('可选依赖')}
+          {t('可选依赖')}
         </ModBadge>
       )}
 
@@ -204,6 +205,7 @@ const ModLocal = ({
   duplicateFiles,
   renderPath = [],
 }: ModInfo & { optional?: boolean; renderPath?: string[] }) => {
+  const { t } = useTranslation()
   const { download } = useGlobalContext()
   const [expanded, setExpanded] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -227,7 +229,7 @@ const ModLocal = ({
     if (update) {
       setUpdateState([update.gb_file, update.version])
       setUpdateString(
-        i18n.t('点击更新 · {newversion}', {
+        t('点击更新 · {newversion}', {
           newversion: update.version,
         }),
       )
@@ -279,33 +281,33 @@ const ModLocal = ({
             ctx?.switchAlwaysOn(name, !isAlwaysOn)
           }}
         >
-          {isAlwaysOn ? i18n.t('始终开启') : enabled ? i18n.t('已启用') : i18n.t('已禁用')}
+          {isAlwaysOn ? t('始终开启') : enabled ? t('已启用') : t('已禁用')}
         </ModBadge>
 
         {enabled &&
           (depState.status === 'missing' ? (
             <ModBadge bg="#ef4647" color="white" title={depState.message}>
-              {i18n.t('依赖·缺失')}
+              {t('依赖·缺失')}
             </ModBadge>
           ) : depState.status === 'not-enabled' ? (
             <ModBadge bg="#ff9800" color="white" title={depState.message}>
-              {i18n.t('依赖·未启用')}
+              {t('依赖·未启用')}
             </ModBadge>
           ) : depState.status === 'mismatched-version' ? (
             <ModBadge bg="#ff9800" color="white" title={depState.message}>
-              {i18n.t('依赖·版本不匹配')}
+              {t('依赖·版本不匹配')}
             </ModBadge>
           ) : null)}
 
         {hasCycle && (
           <ModBadge bg="#9c27b0" color="white">
-            {i18n.t('循环依赖')}
+            {t('循环依赖')}
           </ModBadge>
         )}
 
         {optional && (
           <ModBadge bg="#ff9800" color="white">
-            {i18n.t('可选依赖')}
+            {t('可选依赖')}
           </ModBadge>
         )}
 
@@ -313,7 +315,7 @@ const ModLocal = ({
           <ModBadge
             bg="#2196f3"
             color="white"
-            title={i18n.t('启用的，依赖此 Mod 的 Mod: {slot0}', {
+            title={t('启用的，依赖此 Mod 的 Mod: {slot0}', {
               slot0: dependedByFiltered.map((v) => v.name).join(', '),
             })}
           >
@@ -327,10 +329,10 @@ const ModLocal = ({
             color="white"
             title={duplicateFiles.map((v) => v.split('/').pop()).join(' | ')}
           >
-            {i18n.t('重复 Mod ·')}
+            {t('重复 Mod ·')}
 
             {duplicateCount}
-            {i18n.t('次')}
+            {t('次')}
           </ModBadge>
         )}
 
@@ -344,12 +346,12 @@ const ModLocal = ({
                   setUpdateString(`${progress}% (${task.subtasks.length})`)
                 },
                 onFinished: () => {
-                  setUpdateString(i18n.t('下载完成'))
+                  setUpdateString(t('下载完成'))
                   ctx?.reloadMods()
                 },
                 onFailed: (task) => {
                   console.log(task)
-                  setUpdateString(i18n.t('下载失败'))
+                  setUpdateString(t('下载失败'))
                 },
                 force: true,
               })
@@ -403,11 +405,7 @@ const ModLocal = ({
           </span>
         )}
         {hovered && (
-          <span
-            className="delete-btn"
-            onClick={() => ctx?.deleteMod(name)}
-            title={i18n.t('删除 Mod')}
-          >
+          <span className="delete-btn" onClick={() => ctx?.deleteMod(name)} title={t('删除 Mod')}>
             <Icon name="delete" />
           </span>
         )}
@@ -493,6 +491,7 @@ const ModOptionsOrderPanel = ({
   installedMods: import('../states').BackendModInfo[]
   onOrderChange: (order: string[]) => void
 }) => {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
 
   const order: string[] = currentProfile?.mod_options_order ?? []
@@ -533,7 +532,7 @@ const ModOptionsOrderPanel = ({
     <div className="mod-options-order">
       <div className="moo-header flex items-center" onClick={() => setExpanded((v) => !v)}>
         <Icon name={expanded ? 'i-down' : 'i-right'} />
-        <span>{i18n.t('Mod Options 顺序')}</span>
+        <span>{t('Mod Options 顺序')}</span>
       </div>
       {expanded && (
         <div className="moo-list">
@@ -543,7 +542,7 @@ const ModOptionsOrderPanel = ({
                 <button
                   className={i === 0 ? 'disabled' : ''}
                   onClick={() => moveToTop(i)}
-                  title={i18n.t('置顶')}
+                  title={t('置顶')}
                 >
                   ⤒
                 </button>
@@ -570,6 +569,7 @@ const ModOptionsOrderPanel = ({
 }
 
 export const Manage = () => {
+  const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest
   const [alwaysOnMods, setAlwaysOnMods] = useAlwaysOnMods()
@@ -764,7 +764,7 @@ export const Manage = () => {
     return mods
   }, [latestModInfos, installedModMap])
 
-  const [hasUpdateBtnState, setHasUpdateBtnState] = useState(i18n.t('更新全部'))
+  const [hasUpdateBtnState, setHasUpdateBtnState] = useState(t('更新全部'))
 
   const modsTreeRef = useRef(null)
   const [filter, setFilter] = useState('')
@@ -934,10 +934,10 @@ export const Manage = () => {
 
             return (
               <div className="popup-content">
-                <div className="title">{i18n.t('未选择 Profile')}</div>
-                <div className="content">{i18n.t('请先选择一个 Profile 后再启用/禁用 Mod')}</div>
+                <div className="title">{t('未选择 Profile')}</div>
+                <div className="content">{t('请先选择一个 Profile 后再启用/禁用 Mod')}</div>
                 <div className="buttons">
-                  <Button onClick={hide}>{i18n.t('确定')}</Button>
+                  <Button onClick={hide}>{t('确定')}</Button>
                 </div>
               </div>
             )
@@ -1067,15 +1067,15 @@ export const Manage = () => {
 
           return (
             <div className="delete-mod-popup">
-              <div className="title">{i18n.t('删除 Mod 确认')}</div>
+              <div className="title">{t('删除 Mod 确认')}</div>
 
               {dependentMods.length > 0 && (
                 <div className="warning-section">
-                  <div className="warning-title">{i18n.t('⚠️ 警告：以下 Mod 依赖此 Mod')}</div>
+                  <div className="warning-title">{t('⚠️ 警告：以下 Mod 依赖此 Mod')}</div>
                   <div className="dependent-mods">
                     {dependentMods.map((mod) => (
                       <div key={mod.name} className="dependent-mod">
-                        {mod.name} {mod.version} {mod.enabled ? '' : i18n.t('(已禁用)')}
+                        {mod.name} {mod.version} {mod.enabled ? '' : t('(已禁用)')}
                       </div>
                     ))}
                   </div>
@@ -1083,7 +1083,7 @@ export const Manage = () => {
               )}
 
               <div className="delete-target">
-                {i18n.t('将要删除：')}{' '}
+                {t('将要删除：')}{' '}
                 <strong>
                   {name} {modToDelete.version}
                 </strong>
@@ -1092,7 +1092,7 @@ export const Manage = () => {
               {orphanedMods.length > 0 && (
                 <div className="orphan-section">
                   <div className="orphan-title">
-                    {i18n.t('以下 Mod 将不再被任何 Mod 引用，是否一并删除？')}
+                    {t('以下 Mod 将不再被任何 Mod 引用，是否一并删除？')}
                   </div>
                   <div className="orphan-list">
                     {orphanedMods.map((mod) => (
@@ -1119,9 +1119,9 @@ export const Manage = () => {
               )}
 
               <div className="buttons">
-                <Button onClick={hide}>{i18n.t('取消')}</Button>
+                <Button onClick={hide}>{t('取消')}</Button>
                 <Button className="delete-confirm" onClick={handleDelete}>
-                  {i18n.t('确认删除')}
+                  {t('确认删除')}
                 </Button>
               </div>
             </div>
@@ -1203,7 +1203,7 @@ export const Manage = () => {
 
         return (
           <div className="popup-content full-mod-check-popup">
-            <div className="title">{i18n.t('检查全部 Mod 是否正常')}</div>
+            <div className="title">{t('检查全部 Mod 是否正常')}</div>
             {!progress.done ? (
               <div className="content full-mod-check-content">
                 <div className="progress-wrap">
@@ -1214,21 +1214,21 @@ export const Manage = () => {
                     lineWidth={6}
                   />
                 </div>
-                <p>{i18n.t('正在检查 Mod 实际内容，这可能需要一些时间。')}</p>
+                <p>{t('正在检查 Mod 实际内容，这可能需要一些时间。')}</p>
                 <p>
-                  {i18n.t('进度：{current}/{total}', {
+                  {t('进度：{current}/{total}', {
                     current: progress.current,
                     total: progress.total,
                   })}
                 </p>
-                {progress.file && <p>{i18n.t('当前文件：{file}', { file: progress.file })}</p>}
+                {progress.file && <p>{t('当前文件：{file}', { file: progress.file })}</p>}
               </div>
             ) : (
               <div className="content full-mod-check-content">
                 <p>
                   {issueCount === 0
-                    ? i18n.t('检查完成，未发现损坏的 Mod 压缩包。')
-                    : i18n.t('检查完成，发现 {count} 个损坏或无法完整读取的 Mod 压缩包。', {
+                    ? t('检查完成，未发现损坏的 Mod 压缩包。')
+                    : t('检查完成，发现 {count} 个损坏或无法完整读取的 Mod 压缩包。', {
                         count: issueCount,
                       })}
                 </p>
@@ -1242,13 +1242,13 @@ export const Manage = () => {
                     ))}
                   </div>
                 )}
-                {deleteState === 'done' && <p>{i18n.t('已删除损坏的 Mod 压缩包。')}</p>}
+                {deleteState === 'done' && <p>{t('已删除损坏的 Mod 压缩包。')}</p>}
               </div>
             )}
             <div className="buttons">
               {progress.done && issueCount > 0 && deleteState !== 'done' && (
                 <Button onClick={deleteBrokenMods}>
-                  {deleteState === 'deleting' ? i18n.t('删除中...') : i18n.t('删除这些损坏 Mod')}
+                  {deleteState === 'deleting' ? t('删除中...') : t('删除这些损坏 Mod')}
                 </Button>
               )}
               <Button
@@ -1257,7 +1257,7 @@ export const Manage = () => {
                   hide()
                 }}
               >
-                {progress.done ? i18n.t('确定') : i18n.t('检查中...')}
+                {progress.done ? t('确定') : t('检查中...')}
               </Button>
             </div>
           </div>
@@ -1290,10 +1290,10 @@ export const Manage = () => {
     <div className="manage">
       <modListContext.Provider value={manageCtx}>
         <div className="modList">
-          <Heading level={1}>{i18n.t('Mod 列表')}</Heading>
+          <Heading level={1}>{t('Mod 列表')}</Heading>
           <div className="space-x-1 mt-2">
             <Input
-              placeholder={i18n.t('筛选 Mod')}
+              placeholder={t('筛选 Mod')}
               type="text"
               value={filter}
               onChange={(e) => {
@@ -1305,7 +1305,7 @@ export const Manage = () => {
                 await callRemote('open_url', gamePath + '/Mods')
               }}
             >
-              {i18n.t('打开 Mods 文件夹')}
+              {t('打开 Mods 文件夹')}
             </Button>
             <Button
               onClick={() => {
@@ -1320,7 +1320,7 @@ export const Manage = () => {
                 manageCtx.switchMod(alwaysOnMods, true, true)
               }}
             >
-              {i18n.t('禁用全部')}
+              {t('禁用全部')}
             </Button>
             <Button
               onClick={() => {
@@ -1330,7 +1330,7 @@ export const Manage = () => {
                 )
               }}
             >
-              {i18n.t('启用全部')}
+              {t('启用全部')}
             </Button>
           </div>
 
@@ -1340,7 +1340,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('只显示不被依赖的Mod')}
+                {t('只显示不被依赖的Mod')}
               </Checkbox.Content>
             </Checkbox>
 
@@ -1349,7 +1349,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('检查可选依赖')}
+                {t('检查可选依赖')}
               </Checkbox.Content>
             </Checkbox>
 
@@ -1358,7 +1358,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('显示完整树')}
+                {t('显示完整树')}
               </Checkbox.Content>
             </Checkbox>
 
@@ -1367,7 +1367,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('显示更新')}
+                {t('显示更新')}
               </Checkbox.Content>
             </Checkbox>
 
@@ -1376,7 +1376,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('自动禁用新安装的Mod')}
+                {t('自动禁用新安装的Mod')}
               </Checkbox.Content>
             </Checkbox>
 
@@ -1385,7 +1385,7 @@ export const Manage = () => {
                 <Checkbox.Control>
                   <Checkbox.Indicator />
                 </Checkbox.Control>
-                {i18n.t('显示详细信息')}
+                {t('显示详细信息')}
               </Checkbox.Content>
             </Checkbox>
           </div>
@@ -1397,13 +1397,13 @@ export const Manage = () => {
             }}
           >
             <Button onClick={startFullModCheck} isDisabled={fullCheckRunning}>
-              {fullCheckRunning ? i18n.t('检查中...') : i18n.t('检查全部 Mod 是否正常')}
+              {fullCheckRunning ? t('检查中...') : t('检查全部 Mod 是否正常')}
             </Button>
             {showUpdate && hasUpdateMods.length !== 0 && (
               <Button
                 onClick={() => {
-                  if (hasUpdateBtnState !== i18n.t('更新全部')) return
-                  setHasUpdateBtnState(i18n.t('更新中'))
+                  if (hasUpdateBtnState !== t('更新全部')) return
+                  setHasUpdateBtnState(t('更新中'))
                   const updateUnfinishedSet = new Set(hasUpdateMods.map((v) => v.name))
                   for (const mod of hasUpdateMods) {
                     download.downloadMod(mod.name, mod.gb_file === '-1' ? mod.url : mod.gb_file, {
@@ -1414,13 +1414,13 @@ export const Manage = () => {
                       onFinished: () => {
                         updateUnfinishedSet.delete(mod.name)
                         if (updateUnfinishedSet.size === 0) {
-                          setHasUpdateBtnState(i18n.t('更新完成'))
+                          setHasUpdateBtnState(t('更新完成'))
                           manageCtx.reloadMods()
                         }
                       },
                       onFailed: () => {
                         console.log('failed')
-                        setHasUpdateBtnState(i18n.t('更新失败，请查看左下角'))
+                        setHasUpdateBtnState(t('更新失败，请查看左下角'))
                       },
                       force: true,
                     })
@@ -1472,8 +1472,8 @@ export const Manage = () => {
                 }}
               >
                 {fixDepsState === 'downloading'
-                  ? i18n.t('下载中')
-                  : i18n.t('补全缺失依赖 ({count})', { count: missingDeps.length })}
+                  ? t('下载中')
+                  : t('补全缺失依赖 ({count})', { count: missingDeps.length })}
               </Button>
             )}
           </div>
@@ -1487,7 +1487,7 @@ export const Manage = () => {
         </div>
 
         <div className="profiles mt-8 space-y-2">
-          <Heading level={1}>{i18n.t('Profile 列表')}</Heading>
+          <Heading level={1}>{t('Profile 列表')}</Heading>
 
           <div className="flex gap-2 flex-wrap">
             {profiles.map((v) => (
@@ -1497,7 +1497,7 @@ export const Manage = () => {
 
           <div className="newProfile">
             <Input
-              placeholder={i18n.t('Profile 名')}
+              placeholder={t('Profile 名')}
               /* @ts-ignore */
               filter={alphabet}
               maxlength="30"
@@ -1512,7 +1512,7 @@ export const Manage = () => {
                 }
               }}
             >
-              {i18n.t('新建')}
+              {t('新建')}
             </Button>
           </div>
 

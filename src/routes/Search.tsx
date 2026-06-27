@@ -1,4 +1,3 @@
-import i18n from 'src/i18n'
 import { Fragment } from 'react'
 import { useState, useEffect } from 'react'
 import { ModList } from '../components/ModList'
@@ -9,6 +8,7 @@ import { useRef } from 'react'
 import { Content, searchSubmission } from '../api/wegfan'
 import { Select, ListBox, Input } from '@heroui/react'
 import { enforceEverest } from '../components/EnforceEverestPage'
+import { useTranslation } from 'react-i18next'
 
 const categoryIdMap = {
   Assets: 15655,
@@ -24,6 +24,7 @@ const categoryIdMap = {
 }
 
 export const Search = () => {
+  const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest
 
@@ -103,44 +104,44 @@ export const Search = () => {
           </Select.Trigger>
           <Select.Popover>
             <ListBox>
-              <ListBox.Item id="" textValue={i18n.t('全部')}>
-                {i18n.t('全部')}
+              <ListBox.Item id="" textValue={t('全部')}>
+                {t('全部')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Maps" textValue={i18n.t('地图')}>
-                {i18n.t('地图')}
+              <ListBox.Item id="Maps" textValue={t('地图')}>
+                {t('地图')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Assets" textValue={i18n.t('资源')}>
-                {i18n.t('资源')}
+              <ListBox.Item id="Assets" textValue={t('资源')}>
+                {t('资源')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Effects" textValue={i18n.t('特效')}>
-                {i18n.t('特效')}
+              <ListBox.Item id="Effects" textValue={t('特效')}>
+                {t('特效')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
               <ListBox.Item id="UI" textValue="UI">
                 UI
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Dialog" textValue={i18n.t('对话')}>
-                {i18n.t('对话')}
+              <ListBox.Item id="Dialog" textValue={t('对话')}>
+                {t('对话')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Other/Misc" textValue={i18n.t('其他')}>
-                {i18n.t('其他')}
+              <ListBox.Item id="Other/Misc" textValue={t('其他')}>
+                {t('其他')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Helpers" textValue={i18n.t('辅助')}>
-                {i18n.t('辅助')}
+              <ListBox.Item id="Helpers" textValue={t('辅助')}>
+                {t('辅助')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Skins" textValue={i18n.t('皮肤')}>
-                {i18n.t('皮肤')}
+              <ListBox.Item id="Skins" textValue={t('皮肤')}>
+                {t('皮肤')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="Mechanics" textValue={i18n.t('机制')}>
-                {i18n.t('机制')}
+              <ListBox.Item id="Mechanics" textValue={t('机制')}>
+                {t('机制')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
             </ListBox>
@@ -158,24 +159,24 @@ export const Search = () => {
           </Select.Trigger>
           <Select.Popover>
             <ListBox>
-              <ListBox.Item id="new" textValue={i18n.t('最近发布')}>
-                {i18n.t('最近发布')}
+              <ListBox.Item id="new" textValue={t('最近发布')}>
+                {t('最近发布')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="updateAdded" textValue={i18n.t('最近添加')}>
-                {i18n.t('最近添加')}
+              <ListBox.Item id="updateAdded" textValue={t('最近添加')}>
+                {t('最近添加')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="updated" textValue={i18n.t('最近更新')}>
-                {i18n.t('最近更新')}
+              <ListBox.Item id="updated" textValue={t('最近更新')}>
+                {t('最近更新')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="views" textValue={i18n.t('最多浏览')}>
-                {i18n.t('最多浏览')}
+              <ListBox.Item id="views" textValue={t('最多浏览')}>
+                {t('最多浏览')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
-              <ListBox.Item id="likes" textValue={i18n.t('最多点赞')}>
-                {i18n.t('最多点赞')}
+              <ListBox.Item id="likes" textValue={t('最多点赞')}>
+                {t('最多点赞')}
                 <ListBox.ItemIndicator />
               </ListBox.Item>
             </ListBox>
@@ -202,12 +203,12 @@ export const Search = () => {
               }}
             />
           ) : (
-            <div>{i18n.t('加载失败，请重试')}</div>
+            <div>{t('加载失败，请重试')}</div>
           )
         ) : loading ? (
           <div></div>
         ) : (
-          <div>{i18n.t('无内容')}</div>
+          <div>{t('无内容')}</div>
         )}
       </div>
     </Fragment>

@@ -1,6 +1,6 @@
 import { Button } from '@heroui/react'
 import { ReactNode, useState } from 'react'
-import i18n from 'src/i18n'
+import { useTranslation } from 'react-i18next'
 
 export function LanuchButton({
   className,
@@ -13,6 +13,7 @@ export function LanuchButton({
   text?: ReactNode
   startingText?: ReactNode
 }) {
+  const { t } = useTranslation()
   const [isStarting, setIsStarting] = useState(false)
 
   function handleStart() {
@@ -35,7 +36,7 @@ export function LanuchButton({
         handleStart()
       }}
     >
-      {isStarting ? startingText || i18n.t('正在启动') : text || i18n.t('启动')}
+      {isStarting ? startingText || t('正在启动') : text || t('启动')}
     </Button>
   )
 }

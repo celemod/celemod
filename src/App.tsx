@@ -1,4 +1,3 @@
-import i18n from 'src/i18n'
 import { Fragment, createContext, useMemo, useContext } from 'react'
 import { MemoryRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { Icon } from './components/Icon'
@@ -20,6 +19,7 @@ import { createBlacklistContext } from './context/blacklist'
 import { RecommendMaps } from './routes/RecommendMaps'
 import { Modal } from '@heroui/react'
 import { Button } from './components/Button'
+import { useTranslation } from 'react-i18next'
 
 // Map page names to route paths
 const PAGE_PATHS: Record<string, string> = {
@@ -63,6 +63,7 @@ const SidebarButton = ({ icon, name, title, path, currentPath }: any) => {
 }
 
 const AppLayout = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -104,7 +105,7 @@ const AppLayout = () => {
             <SidebarButton
               icon="home"
               name="Home"
-              title={i18n.t('主页')}
+              title={t('主页')}
               path="/"
               currentPath={location.pathname}
             />
@@ -120,14 +121,14 @@ const AppLayout = () => {
                 <SidebarButton
                   icon="search"
                   name="Search"
-                  title={i18n.t('搜索')}
+                  title={t('搜索')}
                   path="/search"
                   currentPath={location.pathname}
                 />
                 <SidebarButton
                   icon="drive"
                   name="Manage"
-                  title={i18n.t('管理')}
+                  title={t('管理')}
                   path="/manage"
                   currentPath={location.pathname}
                 />
@@ -135,7 +136,7 @@ const AppLayout = () => {
                   <SidebarButton
                     icon="web"
                     name="Multiplayer"
-                    title={i18n.t('联机相关')}
+                    title={t('联机相关')}
                     path="/multiplayer"
                     currentPath={location.pathname}
                   />
@@ -143,14 +144,14 @@ const AppLayout = () => {
                 <SidebarButton
                   icon="flag"
                   name="RecommendMods"
-                  title={i18n.t('推荐模组')}
+                  title={t('推荐模组')}
                   path="/recommend-mods"
                   currentPath={location.pathname}
                 />
                 <SidebarButton
                   icon="image"
                   name="RecommendMaps"
-                  title={i18n.t('推荐地图')}
+                  title={t('推荐地图')}
                   path="/recommend-maps"
                   currentPath={location.pathname}
                 />

@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 // @ts-ignore
 import './globals.css'
+import './i18n'
 
 async function init() {
   // F5 reload

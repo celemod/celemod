@@ -1,5 +1,3 @@
-import i18n from 'src/i18n'
-
 import { useAutoDisableNewMods, useGamePath, useInstalledMods } from '../states'
 // import { Button } from '../components/Button'
 import { useState } from 'react'
@@ -9,6 +7,7 @@ import { useRef } from 'react'
 import { useGlobalContext } from '../App'
 import { enforceEverest } from '../components/EnforceEverestPage'
 import { Description, Heading, Button } from '@heroui/react'
+import { useTranslation } from 'react-i18next'
 
 const modNameFromUrl = (url: string) => {
   return decodeURIComponent(url.split('/mods/').pop() || '')
@@ -30,12 +29,13 @@ const RMod = ({
   modsFolder?: string
   autoDisableNewMods: boolean
 }) => {
-  const [state, setState] = useState(installed ? i18n.t('已安装') : i18n.t('下载'))
+  const { t } = useTranslation()
+  const [state, setState] = useState(installed ? t('已安装') : t('下载'))
   const ctx = useGlobalContext()
 
   const startDownload = async () => {
-    if (state !== i18n.t('下载')) return
-    setState(i18n.t('准备下载'))
+    if (state !== t('下载')) return
+    setState(t('准备下载'))
     const name = modNameFromUrl(download_url)
 
     try {
@@ -51,16 +51,16 @@ const RMod = ({
           )
         },
         async onFinished() {
-          setState(i18n.t('已安装'))
+          setState(t('已安装'))
           await ctx.modManage.reloadMods()
         },
         onFailed() {
-          setState(i18n.t('下载失败'))
+          setState(t('下载失败'))
         },
       })
     } catch (error) {
       console.error(error)
-      setState(i18n.t('下载失败'))
+      setState(t('下载失败'))
     }
   }
 
@@ -88,6 +88,7 @@ const RMod = ({
 }
 
 export const RecommendMods = () => {
+  const { t, i18n } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest
 
@@ -108,13 +109,13 @@ export const RecommendMods = () => {
 
   return (
     <div className="max-h-full">
-      <Heading level={1}>{i18n.t('推荐的模组')}</Heading>
-      <Description>{i18n.t('这里将会列出一些推荐安装的模组及其简介，请按需安装')}</Description>
+      <Heading level={1}>{t('推荐的模组')}</Heading>
+      <Description>{t('这里将会列出一些推荐安装的模组及其简介，请按需安装')}</Description>
 
       <div className="grid grid-cols-2 gap-x-6 mt-4">
         <div className="">
           <Heading level={4} className="flex items-center gap-x-1 mb-2">
-            {i18n.t('功能性模组')}
+            {t('功能性模组')}
             <Button
               size="sm"
               className={'h-7'}
@@ -132,7 +133,7 @@ export const RecommendMods = () => {
                 }
               }}
             >
-              {i18n.t('下载推荐')}
+              {t('下载推荐')}
             </Button>
           </Heading>
           <div className="space-y-4">
@@ -159,7 +160,7 @@ export const RecommendMods = () => {
 
         <div>
           <Heading level={4} className="mb-2">
-            {i18n.t('皮肤模组')}
+            {t('皮肤模组')}
           </Heading>
           <div className="space-y-4">
             {skinMods.map((mod) => (

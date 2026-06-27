@@ -1,4 +1,3 @@
-import i18n from 'src/i18n'
 import { Fragment } from 'react'
 import { useCurrentEverestVersion, useGamePath, useMirror } from '../states'
 import { useContext, useEffect, useState } from 'react'
@@ -8,6 +7,7 @@ import { Button } from '../components/Button'
 import { useGlobalContext } from '../App'
 import { ProgressIndicator } from '../components/Progress'
 import { createPopup, PopupContext } from '../components/Popup'
+import { useTranslation } from 'react-i18next'
 
 interface Maddie480EverestVersion {
   date: string
@@ -48,6 +48,7 @@ const Channel = ({
   title: string
   onInstall: (url: string) => void
 }) => {
+  const { t } = useTranslation()
   const [data, setData] = useState<Maddie480EverestVersion[] | null>(null)
 
   useEffect(() => {
@@ -70,9 +71,9 @@ const Channel = ({
       <h2>{title}</h2>
       <div className="list">
         {data === null ? (
-          <div>{i18n.t('加载中...')}</div>
+          <div>{t('加载中...')}</div>
         ) : data.length === 0 ? (
-          <div>{i18n.t('无数据')}</div>
+          <div>{t('无数据')}</div>
         ) : (
           data.map((v, i) => (
             <div key={i} className="item">
@@ -82,7 +83,7 @@ const Channel = ({
               </div>
               <div className="line2">
                 <div className="commit">{v.commit.slice(0, 7)}</div>
-                <Button onClick={() => onInstall(getDownloadUrl(v))}>{i18n.t('安装')}</Button>
+                <Button onClick={() => onInstall(getDownloadUrl(v))}>{t('安装')}</Button>
               </div>
             </div>
           ))
@@ -93,6 +94,7 @@ const Channel = ({
 }
 
 export const Everest = () => {
+  const { t } = useTranslation()
   const ctx = useGlobalContext()
   const { setCurrentEverestVersion, currentEverestVersion } = useCurrentEverestVersion()
   const [gamePath] = useGamePath()
@@ -139,23 +141,21 @@ export const Everest = () => {
 
       return (
         <div className="popup-content manual-everest-popup">
-          <div className="title">{i18n.t('手动指定 Everest 版本')}</div>
+          <div className="title">{t('手动指定 Everest 版本')}</div>
           <div className="content">
             <p>
-              {i18n.t(
-                '如果你已经安装了 Everest，但 CeleMod 没有正确识别，可以在这里手动填写版本号。',
-              )}
+              {t('如果你已经安装了 Everest，但 CeleMod 没有正确识别，可以在这里手动填写版本号。')}
             </p>
-            <p>{i18n.t('注意：如果实际上没有安装 Everest，就无法通过 Mod 方式启动游戏。')}</p>
+            <p>{t('注意：如果实际上没有安装 Everest，就无法通过 Mod 方式启动游戏。')}</p>
             <input
               type="text"
               value={manualVersion}
-              placeholder={i18n.t('例如 4000')}
+              placeholder={t('例如 4000')}
               onInput={(e) => setManualVersion((e.target as HTMLInputElement).value)}
             />
           </div>
           <div className="buttons">
-            <Button onClick={hide}>{i18n.t('取消')}</Button>
+            <Button onClick={hide}>{t('取消')}</Button>
             <Button
               onClick={() => {
                 const version = manualVersion.trim()
@@ -164,7 +164,7 @@ export const Everest = () => {
                 hide()
               }}
             >
-              {i18n.t('确认')}
+              {t('确认')}
             </Button>
           </div>
         </div>
@@ -182,16 +182,16 @@ export const Everest = () => {
             <span className="ico">
               <Icon name="i-asterisk" />
             </span>
-            <span className="ti">{i18n.t('当前安装的 Everest 版本')}</span>
+            <span className="ti">{t('当前安装的 Everest 版本')}</span>
             <span className="value">{currentEverestVersion}</span>
           </Fragment>
         ) : (
-          <span className="ti">{i18n.t('未安装 Everest')}</span>
+          <span className="ti">{t('未安装 Everest')}</span>
         )}
       </div>
       {!currentEverestVersion && (
         <div className="manual-everest-version" onClick={showManualVersionPopup}>
-          {i18n.t('我已安装 Everest，但未显示')}
+          {t('我已安装 Everest，但未显示')}
         </div>
       )}
       {installingUrl === null ? (
@@ -200,14 +200,14 @@ export const Everest = () => {
             <Fragment>
               <div className="channels">
                 <Channel
-                  title={i18n.t('Stable 通道')}
+                  title={t('Stable 通道')}
                   branch="Stable"
                   dataFull={everestData}
                   onInstall={(url) => installEverest(url)}
                 />
 
                 <Channel
-                  title={i18n.t('Beta 通道')}
+                  title={t('Beta 通道')}
                   branch="Beta"
                   dataFull={everestData}
                   onInstall={(url) => installEverest(url)}
@@ -215,7 +215,7 @@ export const Everest = () => {
 
                 <Channel
                   branch="Dev"
-                  title={i18n.t('Dev 通道')}
+                  title={t('Dev 通道')}
                   dataFull={everestData}
                   onInstall={(url) => installEverest(url)}
                 />
@@ -235,13 +235,13 @@ export const Everest = () => {
                 <div className="wrapperin">
                   <Icon name="i-cross" />
                 </div>
-                <div className="tip">{i18n.t('安装失败')}</div>
+                <div className="tip">{t('安装失败')}</div>
                 <div className="url">{installingUrl}</div>
                 <div className="state">
                   <textarea>{failedReason}</textarea>
                 </div>
                 <div className="state">
-                  <Button onClick={() => setInstallingUrl(null)}>{i18n.t('取消')}</Button>
+                  <Button onClick={() => setInstallingUrl(null)}>{t('取消')}</Button>
                 </div>
               </Fragment>
             ) : installState === 'Success' ? (
@@ -249,10 +249,10 @@ export const Everest = () => {
                 <div className="wrapperin">
                   <Icon name="i-tick" />
                 </div>
-                <div className="tip">{i18n.t('安装成功')}</div>
+                <div className="tip">{t('安装成功')}</div>
                 <div className="url">{installingUrl}</div>
                 <div className="state">
-                  <Button onClick={() => setInstallingUrl(null)}>{i18n.t('确认')}</Button>
+                  <Button onClick={() => setInstallingUrl(null)}>{t('确认')}</Button>
                 </div>
               </Fragment>
             ) : (

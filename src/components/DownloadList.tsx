@@ -1,11 +1,10 @@
-import i18n from 'src/i18n'
-
 import { useGlobalContext } from '../App'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { Icon } from './Icon'
 import { Download } from '../context/download'
 import { Heading } from '@heroui/react'
+import { useTranslation } from 'react-i18next'
 
 const formatBytes = (bytes: number) => {
   if (!bytes) return '0 B'
@@ -25,6 +24,7 @@ const formatSpeed = (bytesPerSec: number) => {
 }
 
 const Task = ({ task, download }: { task: Download.TaskInfo; download: any }) => {
+  const { t } = useTranslation()
   const all = task.subtasks.length
   const finished = task.subtasks.filter((v) => v.state === 'Finished').length
 
@@ -36,13 +36,13 @@ const Task = ({ task, download }: { task: Download.TaskInfo; download: any }) =>
       ? {
           icon: 'i-cross',
           onClick: () => download.cancelDownload(task.name),
-          title: i18n.t('取消'),
+          title: t('取消'),
         }
       : (task.state === 'failed' || task.canceled) && task.source
         ? {
             icon: 'replay',
             onClick: () => download.downloadMod(task.name, task.source, { force: true }),
-            title: i18n.t('重试'),
+            title: t('重试'),
           }
         : null
 
@@ -116,6 +116,7 @@ const Task = ({ task, download }: { task: Download.TaskInfo; download: any }) =>
 }
 
 export const DownloadListMenu = () => {
+  const { t } = useTranslation()
   const { download } = useGlobalContext()
   const [downloadTasks, setDownloadTasks] = useState(download.downloadTasks.current)
 
@@ -127,7 +128,7 @@ export const DownloadListMenu = () => {
 
   return (
     <menu className="popup downloadList">
-      <Heading level={4}>{i18n.t('下载任务')}</Heading>
+      <Heading level={4}>{t('下载任务')}</Heading>
       <div className="taskList">
         {Object.values(downloadTasks)
           .filter((v) => v.state !== 'finished' || v.canceled)

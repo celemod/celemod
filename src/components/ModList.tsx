@@ -1,4 +1,3 @@
-import i18n from 'src/i18n'
 import { useContext, useEffect, useState } from 'react'
 import { Button } from './Button'
 import { Icon } from './Icon'
@@ -13,6 +12,7 @@ import { ProgressIndicator } from './Progress'
 import { Card, Button as HeroButton, Modal, Heading, Description } from '@heroui/react'
 import sanitizeHtml from 'sanitize-html'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const processLargeNum = (num: number) => {
   if (num < 1000) return num.toString()
@@ -57,6 +57,7 @@ export const Mod = (props: {
   modFolder: string
   isInstalled: boolean
 }) => {
+  const { t } = useTranslation()
   const { download, modManage } = useGlobalContext()
   const [autoDisableNewMods] = useAutoDisableNewMods()
   const { mod } = props
@@ -173,7 +174,7 @@ export const Mod = (props: {
                   ctx.hide()
                   down(downloadInfo[0].name, downloadInfo[0].id)
                 } else if (downloadInfo.length === 0) {
-                  ctx.setError(i18n.t('文件列表为空'))
+                  ctx.setError(t('文件列表为空'))
                 } else {
                   ctx.setDownloads(downloadInfo)
                 }
