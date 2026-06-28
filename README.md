@@ -8,7 +8,7 @@
   - Mod 列表删除按钮没有交互反馈
   - Mod 排序按钮没有交互反馈
 
-下载： [Github](https://github.com/2nthony/CeleMod/releases/latest) · [夸克(xAcy)](https://pan.quark.cn/s/20d8fcca281e)
+下载： [Github](https://github.com/celemod/celemod/releases/latest) · [夸克(xAcy)](https://pan.quark.cn/s/20d8fcca281e)
 
 打不开可以尝试使用终端app输入以下内容并回车。
 
