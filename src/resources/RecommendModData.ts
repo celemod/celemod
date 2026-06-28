@@ -118,9 +118,9 @@ export const _functionalMods = () =>
       exclude_from_download_all: true,
     },
     {
-      name: 'Better Refill Gems',
+      name: 'Better Refill Gems Plus',
       description: i18n.t('给一次性水晶加上红色边框'),
-      download_url: 'https://celeste.weg.fan/api/v2/download/mods/BetterRefillGems',
+      download_url: 'https://celeste.weg.fan/api/v2/download/mods/BetterRefillGemsPlus',
     },
     {
       name: 'Better Ice Walls',
