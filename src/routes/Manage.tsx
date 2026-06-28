@@ -414,7 +414,7 @@ const ModLocal = ({
       {(!optional || ctx?.fullTree) && expanded && !hasCycle && (
         <div className={`childTree pl-4 ${expanded && 'expanded'}`}>
           {dependencies.map((v) => (
-            <Mod {...v} renderPath={[...renderPath, name]} />
+            <Mod key={v.id + '-' + v.name} {...v} renderPath={[...renderPath, name]} />
           ))}
         </div>
       )}
@@ -1074,7 +1074,7 @@ export const Manage = () => {
                   <div className="warning-title">{t('⚠️ 警告：以下 Mod 依赖此 Mod')}</div>
                   <div className="dependent-mods">
                     {dependentMods.map((mod) => (
-                      <div key={mod.name} className="dependent-mod">
+                      <div key={mod.id + '-' + mod.name} className="dependent-mod">
                         {mod.name} {mod.version} {mod.enabled ? '' : t('(已禁用)')}
                       </div>
                     ))}
@@ -1096,7 +1096,7 @@ export const Manage = () => {
                   </div>
                   <div className="orphan-list">
                     {orphanedMods.map((mod) => (
-                      <label key={mod.name} className="orphan-item">
+                      <label key={mod.id + '-' + mod.name} className="orphan-item">
                         <input
                           type="checkbox"
                           checked={selectedOrphans.includes(mod.name)}
@@ -1479,7 +1479,7 @@ export const Manage = () => {
           </div>
           <div className="list" ref={modsTreeRef}>
             {installedModsTree.map((v) => (
-              <Mod {...(v as any)} />
+              <Mod key={v.id + '-' + v.name} {...(v as any)} />
             ))}
 
             <div className="padding"></div>
@@ -1491,7 +1491,12 @@ export const Manage = () => {
 
           <div className="flex gap-2 flex-wrap">
             {profiles.map((v) => (
-              <Profile {...v} current={v.name === currentProfileName} className="w-24" />
+              <Profile
+                key={v.name}
+                {...v}
+                current={v.name === currentProfileName}
+                className="w-24"
+              />
             ))}
           </div>
 
@@ -1500,7 +1505,7 @@ export const Manage = () => {
               placeholder={t('Profile 名')}
               /* @ts-ignore */
               filter={alphabet}
-              maxlength="30"
+              maxLength={30}
             />
 
             <Button
