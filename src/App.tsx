@@ -1,6 +1,5 @@
 import { Fragment, createContext, useMemo, useContext } from 'react'
-import { MemoryRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { Icon } from './components/Icon'
+import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { Toast } from '@heroui/react'
 
 import { Search } from './routes/Search'
@@ -9,15 +8,14 @@ import { Manage } from './routes/Manage'
 import { Multiplayer } from './routes/Multiplayer'
 import { EventTarget } from './utils'
 import { RecommendMods } from './routes/RecommendMods'
-import { initMirror, useGamePath } from './states'
+import { initMirror } from './states'
 import { createModManageContext } from './context/modManage'
 import { createDownloadContext } from './context/download'
-import { DownloadListPopover } from './components/DownloadList'
 import { useEverestCtx as createEverestContext } from './context/everest'
 import { Everest } from './routes/Everest'
 import { createBlacklistContext } from './context/blacklist'
 import { RecommendMaps } from './routes/RecommendMaps'
-import { useTranslation } from 'react-i18next'
+import { NavSidebar } from './components/nav-sidebar'
 
 // Map page names to route paths
 const PAGE_PATHS: Record<string, string> = {
@@ -45,25 +43,8 @@ export const useGlobalContext = () => {
   return useContext(GlobalContext)
 }
 
-const SidebarButton = ({ icon, name, title, path, currentPath }: any) => {
-  const navigate = useNavigate()
-  const isSelected = path === currentPath || (currentPath === '/' && path === '/')
-
-  return (
-    <button
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors w-full ${isSelected ? 'bg-accent/15 text-accent font-medium' : 'text-foreground/70 hover:bg-default/40'}`}
-      onClick={() => navigate(path)}
-    >
-      <Icon name={icon} />
-      <span className="text-sm">{title || name}</span>
-    </button>
-  )
-}
-
 const AppLayout = () => {
-  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const location = useLocation()
 
   // setup ctx states
   const modManage = createModManageContext()
@@ -80,10 +61,6 @@ const AppLayout = () => {
   }
   initMirror()
 
-  const [gamePath] = useGamePath()
-
-  const currentLang = i18n.language
-
   return (
     <Fragment>
       <Toast.Provider />
@@ -98,68 +75,10 @@ const AppLayout = () => {
           blacklist,
         }}
       >
-        <div className="flex h-screen">
-          <nav className="flex flex-col gap-1 p-3 w-40 min-w-40 bg-surface overflow-y-auto">
-            <SidebarButton
-              icon="home"
-              name="Home"
-              title={t('主页')}
-              path="/"
-              currentPath={location.pathname}
-            />
-            {gamePath && (
-              <Fragment>
-                <SidebarButton
-                  icon="chart-area"
-                  name="Everest"
-                  title="Everest"
-                  path="/everest"
-                  currentPath={location.pathname}
-                />
-                <SidebarButton
-                  icon="search"
-                  name="Search"
-                  title={t('搜索')}
-                  path="/search"
-                  currentPath={location.pathname}
-                />
-                <SidebarButton
-                  icon="drive"
-                  name="Manage"
-                  title={t('管理')}
-                  path="/manage"
-                  currentPath={location.pathname}
-                />
-                {currentLang === 'zh-CN' && (
-                  <SidebarButton
-                    icon="web"
-                    name="Multiplayer"
-                    title={t('联机相关')}
-                    path="/multiplayer"
-                    currentPath={location.pathname}
-                  />
-                )}
-                <SidebarButton
-                  icon="flag"
-                  name="RecommendMods"
-                  title={t('推荐模组')}
-                  path="/recommend-mods"
-                  currentPath={location.pathname}
-                />
-                <SidebarButton
-                  icon="image"
-                  name="RecommendMaps"
-                  title={t('推荐地图')}
-                  path="/recommend-maps"
-                  currentPath={location.pathname}
-                />
-              </Fragment>
-            )}
-
-            <div className="mt-auto flex justify-center py-2"></div>
-
-            <DownloadListPopover />
-          </nav>
+        <div className="flex h-screen overflow-hidden">
+          <div className="h-full w-40 min-w-40 pt-10 overflow-y-auto">
+            <NavSidebar />
+          </div>
 
           <div className="flex-1 overflow-y-auto p-3">
             <Routes>
