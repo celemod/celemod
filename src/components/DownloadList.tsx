@@ -132,7 +132,7 @@ export function DownloadListPopover() {
   return (
     <Popover>
       <Button type="default">
-        <Icon name={tasks?.length ? 'loaderPinwheel' : 'download'} />
+        <Icon name={'download'} />
       </Button>
 
       <Popover.Content placement="top left">
