@@ -94,7 +94,7 @@ const Channel = ({
   )
 }
 
-export const Everest = () => {
+export default function Everest() {
   const { t } = useTranslation()
   const ctx = useGlobalContext()
   const { setCurrentEverestVersion, currentEverestVersion } = useCurrentEverestVersion()

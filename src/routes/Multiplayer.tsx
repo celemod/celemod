@@ -6,7 +6,7 @@ import { callRemote } from '../utils'
 import { enforceEverest } from '../components/EnforceEverestPage'
 import { useTranslation } from 'react-i18next'
 
-export const Multiplayer = () => {
+export default function Multiplayer() {
   const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest

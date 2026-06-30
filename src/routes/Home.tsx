@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { useAlert } from 'src/components/alert'
 import { ProfileCard } from 'src/components/profile-card'
 
-export const Home = () => {
+export default function Home() {
   const { t, i18n } = useTranslation()
 
   const [gamePath, setGamePath] = useGamePath()

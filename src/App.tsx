@@ -1,22 +1,22 @@
-import { Fragment, createContext, useMemo, useContext } from 'react'
+import { Fragment, createContext, useMemo, useContext, lazy } from 'react'
 import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom'
 import { Toast } from '@heroui/react'
 
-import { Search } from './routes/Search'
-import { Home } from './routes/Home'
-import { Manage } from './routes/Manage'
-import { Multiplayer } from './routes/Multiplayer'
+import Home from './routes/Home'
 import { EventTarget } from './utils'
-import { RecommendMods } from './routes/RecommendMods'
 import { initMirror } from './states'
 import { createModManageContext } from './context/modManage'
 import { createDownloadContext } from './context/download'
 import { useEverestCtx as createEverestContext } from './context/everest'
-import { Everest } from './routes/Everest'
 import { createBlacklistContext } from './context/blacklist'
-import { RecommendMaps } from './routes/RecommendMaps'
 import { NavSidebar } from './components/nav-sidebar'
 import { AlertProvider } from './components/alert'
+const RecommendMods = lazy(() => import('./routes/RecommendMods'))
+const Everest = lazy(() => import('./routes/Everest'))
+const Manage = lazy(() => import('./routes/Manage'))
+const Multiplayer = lazy(() => import('./routes/Multiplayer'))
+const RecommendMaps = lazy(() => import('./routes/RecommendMaps'))
+const Search = lazy(() => import('./routes/Search'))
 
 // Map page names to route paths
 const PAGE_PATHS: Record<string, string> = {

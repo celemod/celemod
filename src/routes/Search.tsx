@@ -23,7 +23,7 @@ const categoryIdMap = {
   UI: 2317,
 }
 
-export const Search = () => {
+export default function Search() {
   const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest

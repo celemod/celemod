@@ -568,7 +568,7 @@ const ModOptionsOrderPanel = ({
   )
 }
 
-export const Manage = () => {
+export default function Manage() {
   const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest

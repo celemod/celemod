@@ -87,7 +87,7 @@ const RMod = ({
   )
 }
 
-export const RecommendMods = () => {
+export default function RecommendMods() {
   const { t, i18n } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest

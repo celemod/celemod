@@ -69,7 +69,7 @@ function InstallButton({ name, url }) {
   return <Button onClick={() => startDownload()}>{state}</Button>
 }
 
-export const RecommendMaps = () => {
+export default function RecommendMaps() {
   const { t } = useTranslation()
   const noEverest = enforceEverest()
   if (noEverest) return noEverest
