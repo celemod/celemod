@@ -6,17 +6,15 @@ import {
   useAlwaysOnMods,
   useCurrentBlacklistProfile,
   useGamePath,
-  useInstalledMods,
   useMirror,
   useStorage,
   useUseMultiThread,
 } from '../states'
 import { useEffect } from 'react'
-import { Checkbox, Select, ListBox, Heading, Card, Button } from '@heroui/react'
-import { useGlobalContext } from 'src/App'
-import { LanuchButton } from 'src/components/LaunchButton'
+import { Checkbox, Select, ListBox, Heading, Button } from '@heroui/react'
 import { useTranslation } from 'react-i18next'
 import { useAlert } from 'src/components/alert'
+import { ProfileCard } from 'src/components/profile-card'
 
 export const Home = () => {
   const { t, i18n } = useTranslation()
@@ -37,7 +35,6 @@ export const Home = () => {
       }
     })()
   }, [])
-  const globalCtx = useGlobalContext()
 
   const [lastUseMap, setLastUseMap] = useState<{
     [profile: string]: number
@@ -132,20 +129,8 @@ export const Home = () => {
     }
   }, [currentProfile, gamePath, alwaysOnMods, currentProfileName])
 
-  const formatTime = (time: number) => {
-    if (time === 0) return t('未知')
-    const d = Date.now() - time
-    if (d < 60000) return t('刚刚')
-    if (d < 3600000) return t('{slot0}分钟前', { slot0: Math.floor(d / 60000) })
-    if (d < 86400000) return t('{slot0}小时前', { slot0: Math.floor(d / 3600000) })
-    if (d < 2592000000) return t('{slot0}天前', { slot0: Math.floor(d / 86400000) })
-    if (d < 31536000000) return t('{slot0}月前', { slot0: Math.floor(d / 2592000000) })
-    return t('很久以前')
-  }
-
   const [downloadMirror, setDownloadMirror] = useMirror()
   const [useMultiThread, setUseMultiThread] = useUseMultiThread()
-  const { installedMods } = useInstalledMods()
 
   return (
     <div className="flex flex-col gap-10 p-6 max-w-2xl">
@@ -244,34 +229,14 @@ export const Home = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
           {profiles.map((v) => (
-            <Card
+            <ProfileCard
               key={v.name}
-              className={`p-3 transition-colors ${v.name === currentProfileName ? 'ring-2 ring-accent' : ''}`}
-              onClick={() => {
-                globalCtx.blacklist.switchProfile(v.name)
-              }}
-            >
-              <Card.Title className="text-sm font-semibold">{v.name}</Card.Title>
-              <Card.Description className="text-xs text-muted mt-1">
-                {t('上次启动')}: {formatTime(lastUseMap[v.name] || 0)}
-              </Card.Description>
-              <Card.Description className="text-xs text-muted">
-                {t('启用的 Mod 数')}: {installedMods.length - v.mods.length}
-              </Card.Description>
-
-              <LanuchButton
-                className="mt-2"
-                onClick={(e) => {
-                  e.stopPropagation?.()
-                  globalCtx.blacklist.switchProfile(v.name)
-                  lastUseMap[v.name] = Date.now()
-                  setLastUseMap(lastUseMap)
-                  st.set('lastUseMap', lastUseMap)
-                  st.save()
-                  callRemote('start_game_directly', gamePath || gamePaths[0], false)
-                }}
-              />
-            </Card>
+              name={v.name}
+              mods={v.mods}
+              gamePaths={gamePaths}
+              lastUseMap={lastUseMap}
+              setLastUseMap={setLastUseMap}
+            />
           ))}
         </div>
       </div>
